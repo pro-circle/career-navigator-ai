@@ -126,11 +126,11 @@ function JobDetail() {
               <p className="text-sm text-muted-foreground leading-relaxed">{job.description}</p>
               <h3 className="text-sm font-semibold text-foreground mt-6 mb-2">Required qualifications</h3>
               <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
-                {job.requiredSkills.map((s) => <li key={s}>{s}</li>)}
+                {job.requiredSkills.map((s: string) => <li key={s}>{s}</li>)}
               </ul>
               <h3 className="text-sm font-semibold text-foreground mt-6 mb-2">Preferred</h3>
               <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
-                {job.preferredSkills.map((s) => <li key={s}>{s}</li>)}
+                {job.preferredSkills.map((s: string) => <li key={s}>{s}</li>)}
               </ul>
               <div className="mt-6 pt-6 border-t border-brand-border flex gap-2">
                 <Button onClick={() => toast.success("Published (mock)")}>Publish</Button>
