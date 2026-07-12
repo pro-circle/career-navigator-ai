@@ -9,38 +9,270 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RecruiterRouteRouteImport } from './routes/recruiter/route'
+import { Route as CandidateRouteRouteImport } from './routes/candidate/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RecruiterIndexRouteImport } from './routes/recruiter/index'
+import { Route as CandidateIndexRouteImport } from './routes/candidate/index'
+import { Route as RecruiterJobsRouteImport } from './routes/recruiter/jobs'
+import { Route as RecruiterCompareRouteImport } from './routes/recruiter/compare'
+import { Route as RecruiterCandidatesRouteImport } from './routes/recruiter/candidates'
+import { Route as RecruiterAssistantRouteImport } from './routes/recruiter/assistant'
+import { Route as RecruiterAnalyticsRouteImport } from './routes/recruiter/analytics'
+import { Route as CandidateRoadmapRouteImport } from './routes/candidate/roadmap'
+import { Route as CandidateResumeRouteImport } from './routes/candidate/resume'
+import { Route as CandidatePortfolioRouteImport } from './routes/candidate/portfolio'
+import { Route as CandidateJobsRouteImport } from './routes/candidate/jobs'
+import { Route as CandidateInterviewRouteImport } from './routes/candidate/interview'
+import { Route as CandidateExternalRouteImport } from './routes/candidate/external'
+import { Route as CandidateAssistantRouteImport } from './routes/candidate/assistant'
+import { Route as RecruiterJobsJobIdRouteImport } from './routes/recruiter/jobs.$jobId'
+import { Route as RecruiterCandidatesIdRouteImport } from './routes/recruiter/candidates.$id'
 
+const RecruiterRouteRoute = RecruiterRouteRouteImport.update({
+  id: '/recruiter',
+  path: '/recruiter',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CandidateRouteRoute = CandidateRouteRouteImport.update({
+  id: '/candidate',
+  path: '/candidate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecruiterIndexRoute = RecruiterIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => RecruiterRouteRoute,
+} as any)
+const CandidateIndexRoute = CandidateIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CandidateRouteRoute,
+} as any)
+const RecruiterJobsRoute = RecruiterJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => RecruiterRouteRoute,
+} as any)
+const RecruiterCompareRoute = RecruiterCompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => RecruiterRouteRoute,
+} as any)
+const RecruiterCandidatesRoute = RecruiterCandidatesRouteImport.update({
+  id: '/candidates',
+  path: '/candidates',
+  getParentRoute: () => RecruiterRouteRoute,
+} as any)
+const RecruiterAssistantRoute = RecruiterAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => RecruiterRouteRoute,
+} as any)
+const RecruiterAnalyticsRoute = RecruiterAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => RecruiterRouteRoute,
+} as any)
+const CandidateRoadmapRoute = CandidateRoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => CandidateRouteRoute,
+} as any)
+const CandidateResumeRoute = CandidateResumeRouteImport.update({
+  id: '/resume',
+  path: '/resume',
+  getParentRoute: () => CandidateRouteRoute,
+} as any)
+const CandidatePortfolioRoute = CandidatePortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
+  getParentRoute: () => CandidateRouteRoute,
+} as any)
+const CandidateJobsRoute = CandidateJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => CandidateRouteRoute,
+} as any)
+const CandidateInterviewRoute = CandidateInterviewRouteImport.update({
+  id: '/interview',
+  path: '/interview',
+  getParentRoute: () => CandidateRouteRoute,
+} as any)
+const CandidateExternalRoute = CandidateExternalRouteImport.update({
+  id: '/external',
+  path: '/external',
+  getParentRoute: () => CandidateRouteRoute,
+} as any)
+const CandidateAssistantRoute = CandidateAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => CandidateRouteRoute,
+} as any)
+const RecruiterJobsJobIdRoute = RecruiterJobsJobIdRouteImport.update({
+  id: '/$jobId',
+  path: '/$jobId',
+  getParentRoute: () => RecruiterJobsRoute,
+} as any)
+const RecruiterCandidatesIdRoute = RecruiterCandidatesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => RecruiterCandidatesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/candidate': typeof CandidateRouteRouteWithChildren
+  '/recruiter': typeof RecruiterRouteRouteWithChildren
+  '/candidate/assistant': typeof CandidateAssistantRoute
+  '/candidate/external': typeof CandidateExternalRoute
+  '/candidate/interview': typeof CandidateInterviewRoute
+  '/candidate/jobs': typeof CandidateJobsRoute
+  '/candidate/portfolio': typeof CandidatePortfolioRoute
+  '/candidate/resume': typeof CandidateResumeRoute
+  '/candidate/roadmap': typeof CandidateRoadmapRoute
+  '/recruiter/analytics': typeof RecruiterAnalyticsRoute
+  '/recruiter/assistant': typeof RecruiterAssistantRoute
+  '/recruiter/candidates': typeof RecruiterCandidatesRouteWithChildren
+  '/recruiter/compare': typeof RecruiterCompareRoute
+  '/recruiter/jobs': typeof RecruiterJobsRouteWithChildren
+  '/candidate/': typeof CandidateIndexRoute
+  '/recruiter/': typeof RecruiterIndexRoute
+  '/recruiter/candidates/$id': typeof RecruiterCandidatesIdRoute
+  '/recruiter/jobs/$jobId': typeof RecruiterJobsJobIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/candidate/assistant': typeof CandidateAssistantRoute
+  '/candidate/external': typeof CandidateExternalRoute
+  '/candidate/interview': typeof CandidateInterviewRoute
+  '/candidate/jobs': typeof CandidateJobsRoute
+  '/candidate/portfolio': typeof CandidatePortfolioRoute
+  '/candidate/resume': typeof CandidateResumeRoute
+  '/candidate/roadmap': typeof CandidateRoadmapRoute
+  '/recruiter/analytics': typeof RecruiterAnalyticsRoute
+  '/recruiter/assistant': typeof RecruiterAssistantRoute
+  '/recruiter/candidates': typeof RecruiterCandidatesRouteWithChildren
+  '/recruiter/compare': typeof RecruiterCompareRoute
+  '/recruiter/jobs': typeof RecruiterJobsRouteWithChildren
+  '/candidate': typeof CandidateIndexRoute
+  '/recruiter': typeof RecruiterIndexRoute
+  '/recruiter/candidates/$id': typeof RecruiterCandidatesIdRoute
+  '/recruiter/jobs/$jobId': typeof RecruiterJobsJobIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/candidate': typeof CandidateRouteRouteWithChildren
+  '/recruiter': typeof RecruiterRouteRouteWithChildren
+  '/candidate/assistant': typeof CandidateAssistantRoute
+  '/candidate/external': typeof CandidateExternalRoute
+  '/candidate/interview': typeof CandidateInterviewRoute
+  '/candidate/jobs': typeof CandidateJobsRoute
+  '/candidate/portfolio': typeof CandidatePortfolioRoute
+  '/candidate/resume': typeof CandidateResumeRoute
+  '/candidate/roadmap': typeof CandidateRoadmapRoute
+  '/recruiter/analytics': typeof RecruiterAnalyticsRoute
+  '/recruiter/assistant': typeof RecruiterAssistantRoute
+  '/recruiter/candidates': typeof RecruiterCandidatesRouteWithChildren
+  '/recruiter/compare': typeof RecruiterCompareRoute
+  '/recruiter/jobs': typeof RecruiterJobsRouteWithChildren
+  '/candidate/': typeof CandidateIndexRoute
+  '/recruiter/': typeof RecruiterIndexRoute
+  '/recruiter/candidates/$id': typeof RecruiterCandidatesIdRoute
+  '/recruiter/jobs/$jobId': typeof RecruiterJobsJobIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/candidate'
+    | '/recruiter'
+    | '/candidate/assistant'
+    | '/candidate/external'
+    | '/candidate/interview'
+    | '/candidate/jobs'
+    | '/candidate/portfolio'
+    | '/candidate/resume'
+    | '/candidate/roadmap'
+    | '/recruiter/analytics'
+    | '/recruiter/assistant'
+    | '/recruiter/candidates'
+    | '/recruiter/compare'
+    | '/recruiter/jobs'
+    | '/candidate/'
+    | '/recruiter/'
+    | '/recruiter/candidates/$id'
+    | '/recruiter/jobs/$jobId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/candidate/assistant'
+    | '/candidate/external'
+    | '/candidate/interview'
+    | '/candidate/jobs'
+    | '/candidate/portfolio'
+    | '/candidate/resume'
+    | '/candidate/roadmap'
+    | '/recruiter/analytics'
+    | '/recruiter/assistant'
+    | '/recruiter/candidates'
+    | '/recruiter/compare'
+    | '/recruiter/jobs'
+    | '/candidate'
+    | '/recruiter'
+    | '/recruiter/candidates/$id'
+    | '/recruiter/jobs/$jobId'
+  id:
+    | '__root__'
+    | '/'
+    | '/candidate'
+    | '/recruiter'
+    | '/candidate/assistant'
+    | '/candidate/external'
+    | '/candidate/interview'
+    | '/candidate/jobs'
+    | '/candidate/portfolio'
+    | '/candidate/resume'
+    | '/candidate/roadmap'
+    | '/recruiter/analytics'
+    | '/recruiter/assistant'
+    | '/recruiter/candidates'
+    | '/recruiter/compare'
+    | '/recruiter/jobs'
+    | '/candidate/'
+    | '/recruiter/'
+    | '/recruiter/candidates/$id'
+    | '/recruiter/jobs/$jobId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CandidateRouteRoute: typeof CandidateRouteRouteWithChildren
+  RecruiterRouteRoute: typeof RecruiterRouteRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/recruiter': {
+      id: '/recruiter'
+      path: '/recruiter'
+      fullPath: '/recruiter'
+      preLoaderRoute: typeof RecruiterRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/candidate': {
+      id: '/candidate'
+      path: '/candidate'
+      fullPath: '/candidate'
+      preLoaderRoute: typeof CandidateRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +280,196 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recruiter/': {
+      id: '/recruiter/'
+      path: '/'
+      fullPath: '/recruiter/'
+      preLoaderRoute: typeof RecruiterIndexRouteImport
+      parentRoute: typeof RecruiterRouteRoute
+    }
+    '/candidate/': {
+      id: '/candidate/'
+      path: '/'
+      fullPath: '/candidate/'
+      preLoaderRoute: typeof CandidateIndexRouteImport
+      parentRoute: typeof CandidateRouteRoute
+    }
+    '/recruiter/jobs': {
+      id: '/recruiter/jobs'
+      path: '/jobs'
+      fullPath: '/recruiter/jobs'
+      preLoaderRoute: typeof RecruiterJobsRouteImport
+      parentRoute: typeof RecruiterRouteRoute
+    }
+    '/recruiter/compare': {
+      id: '/recruiter/compare'
+      path: '/compare'
+      fullPath: '/recruiter/compare'
+      preLoaderRoute: typeof RecruiterCompareRouteImport
+      parentRoute: typeof RecruiterRouteRoute
+    }
+    '/recruiter/candidates': {
+      id: '/recruiter/candidates'
+      path: '/candidates'
+      fullPath: '/recruiter/candidates'
+      preLoaderRoute: typeof RecruiterCandidatesRouteImport
+      parentRoute: typeof RecruiterRouteRoute
+    }
+    '/recruiter/assistant': {
+      id: '/recruiter/assistant'
+      path: '/assistant'
+      fullPath: '/recruiter/assistant'
+      preLoaderRoute: typeof RecruiterAssistantRouteImport
+      parentRoute: typeof RecruiterRouteRoute
+    }
+    '/recruiter/analytics': {
+      id: '/recruiter/analytics'
+      path: '/analytics'
+      fullPath: '/recruiter/analytics'
+      preLoaderRoute: typeof RecruiterAnalyticsRouteImport
+      parentRoute: typeof RecruiterRouteRoute
+    }
+    '/candidate/roadmap': {
+      id: '/candidate/roadmap'
+      path: '/roadmap'
+      fullPath: '/candidate/roadmap'
+      preLoaderRoute: typeof CandidateRoadmapRouteImport
+      parentRoute: typeof CandidateRouteRoute
+    }
+    '/candidate/resume': {
+      id: '/candidate/resume'
+      path: '/resume'
+      fullPath: '/candidate/resume'
+      preLoaderRoute: typeof CandidateResumeRouteImport
+      parentRoute: typeof CandidateRouteRoute
+    }
+    '/candidate/portfolio': {
+      id: '/candidate/portfolio'
+      path: '/portfolio'
+      fullPath: '/candidate/portfolio'
+      preLoaderRoute: typeof CandidatePortfolioRouteImport
+      parentRoute: typeof CandidateRouteRoute
+    }
+    '/candidate/jobs': {
+      id: '/candidate/jobs'
+      path: '/jobs'
+      fullPath: '/candidate/jobs'
+      preLoaderRoute: typeof CandidateJobsRouteImport
+      parentRoute: typeof CandidateRouteRoute
+    }
+    '/candidate/interview': {
+      id: '/candidate/interview'
+      path: '/interview'
+      fullPath: '/candidate/interview'
+      preLoaderRoute: typeof CandidateInterviewRouteImport
+      parentRoute: typeof CandidateRouteRoute
+    }
+    '/candidate/external': {
+      id: '/candidate/external'
+      path: '/external'
+      fullPath: '/candidate/external'
+      preLoaderRoute: typeof CandidateExternalRouteImport
+      parentRoute: typeof CandidateRouteRoute
+    }
+    '/candidate/assistant': {
+      id: '/candidate/assistant'
+      path: '/assistant'
+      fullPath: '/candidate/assistant'
+      preLoaderRoute: typeof CandidateAssistantRouteImport
+      parentRoute: typeof CandidateRouteRoute
+    }
+    '/recruiter/jobs/$jobId': {
+      id: '/recruiter/jobs/$jobId'
+      path: '/$jobId'
+      fullPath: '/recruiter/jobs/$jobId'
+      preLoaderRoute: typeof RecruiterJobsJobIdRouteImport
+      parentRoute: typeof RecruiterJobsRoute
+    }
+    '/recruiter/candidates/$id': {
+      id: '/recruiter/candidates/$id'
+      path: '/$id'
+      fullPath: '/recruiter/candidates/$id'
+      preLoaderRoute: typeof RecruiterCandidatesIdRouteImport
+      parentRoute: typeof RecruiterCandidatesRoute
+    }
   }
 }
 
+interface CandidateRouteRouteChildren {
+  CandidateAssistantRoute: typeof CandidateAssistantRoute
+  CandidateExternalRoute: typeof CandidateExternalRoute
+  CandidateInterviewRoute: typeof CandidateInterviewRoute
+  CandidateJobsRoute: typeof CandidateJobsRoute
+  CandidatePortfolioRoute: typeof CandidatePortfolioRoute
+  CandidateResumeRoute: typeof CandidateResumeRoute
+  CandidateRoadmapRoute: typeof CandidateRoadmapRoute
+  CandidateIndexRoute: typeof CandidateIndexRoute
+}
+
+const CandidateRouteRouteChildren: CandidateRouteRouteChildren = {
+  CandidateAssistantRoute: CandidateAssistantRoute,
+  CandidateExternalRoute: CandidateExternalRoute,
+  CandidateInterviewRoute: CandidateInterviewRoute,
+  CandidateJobsRoute: CandidateJobsRoute,
+  CandidatePortfolioRoute: CandidatePortfolioRoute,
+  CandidateResumeRoute: CandidateResumeRoute,
+  CandidateRoadmapRoute: CandidateRoadmapRoute,
+  CandidateIndexRoute: CandidateIndexRoute,
+}
+
+const CandidateRouteRouteWithChildren = CandidateRouteRoute._addFileChildren(
+  CandidateRouteRouteChildren,
+)
+
+interface RecruiterCandidatesRouteChildren {
+  RecruiterCandidatesIdRoute: typeof RecruiterCandidatesIdRoute
+}
+
+const RecruiterCandidatesRouteChildren: RecruiterCandidatesRouteChildren = {
+  RecruiterCandidatesIdRoute: RecruiterCandidatesIdRoute,
+}
+
+const RecruiterCandidatesRouteWithChildren =
+  RecruiterCandidatesRoute._addFileChildren(RecruiterCandidatesRouteChildren)
+
+interface RecruiterJobsRouteChildren {
+  RecruiterJobsJobIdRoute: typeof RecruiterJobsJobIdRoute
+}
+
+const RecruiterJobsRouteChildren: RecruiterJobsRouteChildren = {
+  RecruiterJobsJobIdRoute: RecruiterJobsJobIdRoute,
+}
+
+const RecruiterJobsRouteWithChildren = RecruiterJobsRoute._addFileChildren(
+  RecruiterJobsRouteChildren,
+)
+
+interface RecruiterRouteRouteChildren {
+  RecruiterAnalyticsRoute: typeof RecruiterAnalyticsRoute
+  RecruiterAssistantRoute: typeof RecruiterAssistantRoute
+  RecruiterCandidatesRoute: typeof RecruiterCandidatesRouteWithChildren
+  RecruiterCompareRoute: typeof RecruiterCompareRoute
+  RecruiterJobsRoute: typeof RecruiterJobsRouteWithChildren
+  RecruiterIndexRoute: typeof RecruiterIndexRoute
+}
+
+const RecruiterRouteRouteChildren: RecruiterRouteRouteChildren = {
+  RecruiterAnalyticsRoute: RecruiterAnalyticsRoute,
+  RecruiterAssistantRoute: RecruiterAssistantRoute,
+  RecruiterCandidatesRoute: RecruiterCandidatesRouteWithChildren,
+  RecruiterCompareRoute: RecruiterCompareRoute,
+  RecruiterJobsRoute: RecruiterJobsRouteWithChildren,
+  RecruiterIndexRoute: RecruiterIndexRoute,
+}
+
+const RecruiterRouteRouteWithChildren = RecruiterRouteRoute._addFileChildren(
+  RecruiterRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CandidateRouteRoute: CandidateRouteRouteWithChildren,
+  RecruiterRouteRoute: RecruiterRouteRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
