@@ -10,7 +10,7 @@ import { candidateProfile } from "@/lib/mock-data";
 export const Route = createFileRoute("/candidate/portfolio")({
   head: () => ({
     meta: [
-      { title: "Portfolio — AIHire Pro" },
+      { title: "Profile — AIHire Pro" },
       { name: "description", content: "Manage your profile, professional links, and projects." },
     ],
   }),
@@ -22,7 +22,7 @@ function PortfolioPage() {
     <div>
       <PageHeader
         eyebrow="Profile"
-        title="Portfolio & profile"
+        title="Your profile"
         subtitle="Keep your links, skills, and preferences up to date. Recruiters see this first."
       />
 

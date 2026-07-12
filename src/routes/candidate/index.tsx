@@ -34,9 +34,9 @@ function CandidateDashboard() {
               Your resume matches <span className="text-white font-semibold">{candidateProfile.atsScore}%</span> of typical
               senior frontend job keywords. Focus on <span className="text-brand-warning">System Design</span> to move to 90+.
             </p>
-            <Link to="/candidate/roadmap" className="mt-4 inline-flex">
+            <Link to="/candidate/interview" className="mt-4 inline-flex">
               <Button className="gap-2">
-                Generate prep roadmap <ArrowUpRight className="h-4 w-4" />
+                Start mock interview <ArrowUpRight className="h-4 w-4" />
               </Button>
             </Link>
           </div>
