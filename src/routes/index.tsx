@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Briefcase, GraduationCap, Sparkles, Zap } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AIHire Pro — AI-Powered ATS + Career Prep" },
+      { title: "AIHire Pro — Agentic AI ATS + Career Prep" },
       {
         name: "description",
         content:
-          "Choose your workspace. Recruiters rank candidates with explainable AI; candidates prepare with adaptive mock interviews and personalized roadmaps.",
+          "Choose your workspace. Recruiters rank candidates with agentic AI; candidates prepare with adaptive mock interviews and personalized roadmaps.",
       },
     ],
   }),
@@ -17,8 +18,7 @@ export const Route = createFileRoute("/")({
 
 function Landing() {
   return (
-    <div className="min-h-screen bg-brand-bg text-slate-200 font-sans">
-      {/* subtle grid backdrop */}
+    <div className="min-h-screen bg-brand-bg text-foreground font-sans">
       <div
         className="fixed inset-0 -z-10 opacity-[0.35]"
         style={{
@@ -32,24 +32,20 @@ function Landing() {
           <span className="grid place-items-center h-9 w-9 rounded-xl bg-brand-accent/15 text-brand-accent font-bold">
             A
           </span>
-          <span className="font-semibold text-white">AIHire Pro</span>
+          <span className="font-semibold text-foreground">AIHire Pro</span>
         </div>
-        <div className="hidden sm:flex items-center gap-2 rounded-full border border-brand-border bg-brand-surface px-3 py-1.5 text-xs">
-          <span className="h-2 w-2 rounded-full bg-brand-success animate-pulse" />
-          <span className="mono-label !text-[10px]">System · GPT-OSS-120B</span>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
         </div>
       </header>
 
       <section className="max-w-6xl mx-auto px-6 pt-16 pb-12">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 rounded-full border border-brand-border bg-brand-surface px-3 py-1 text-[11px] mono-label mb-6">
-            <Sparkles className="h-3 w-3 text-brand-accent" /> Explainable AI · Portfolio Intelligence · Adaptive Interviews
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-white mb-5">
+          <h1 className="text-5xl md:text-6xl font-bold tracking-tight text-foreground mb-5">
             AIHire <span className="text-brand-accent">Pro</span>
           </h1>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-            The intelligent bridge between elite talent and high-growth teams — one platform for AI-powered recruitment
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            The intelligent bridge between elite talent and high-growth teams — one platform for agentic AI recruitment
             and career preparation.
           </p>
         </div>
@@ -65,7 +61,7 @@ function Landing() {
               "Semantic candidate matching with explainability",
               "Portfolio & hyperlink intelligence",
               "Compare candidates side-by-side",
-              "AI-generated interview questions",
+              "Agent-generated interview questions",
             ]}
           />
           <RoleCard
@@ -76,7 +72,7 @@ function Landing() {
             title="Score, practice & land the role."
             bullets={[
               "ATS score + resume optimizer",
-              "Adaptive AI mock interviews",
+              "Adaptive mock interviews with coding IDE",
               "External job URL analyzer",
               "Personalized preparation roadmap",
             ]}
@@ -91,7 +87,7 @@ function Landing() {
           ].map((s) => (
             <div key={s.label} className="rounded-2xl border border-brand-border bg-brand-surface p-5">
               <div className="mono-label">{s.label}</div>
-              <div className="mt-1 text-2xl font-bold text-white tabular-nums">{s.value}</div>
+              <div className="mt-1 text-2xl font-bold text-foreground tabular-nums">{s.value}</div>
               <div className="text-xs text-brand-accent mt-1">{s.hint}</div>
             </div>
           ))}
@@ -101,7 +97,7 @@ function Landing() {
       <footer className="max-w-6xl mx-auto px-6 py-10 border-t border-brand-border mt-16 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
           <Zap className="h-3.5 w-3.5 text-brand-accent" />
-          Powered by GPT-OSS · Groq · RAG · Live web search
+          Powered by Agentic AI · RAG · Live web search
         </div>
         <div className="mono-label">© 2026 AIHire Pro</div>
       </footer>
@@ -136,10 +132,10 @@ function RoleCard({
         <Icon className="h-5 w-5" />
       </div>
       <div className="mono-label mb-2">{eyebrow}</div>
-      <h2 className="text-2xl font-semibold text-white mb-4">{title}</h2>
+      <h2 className="text-2xl font-semibold text-foreground mb-4">{title}</h2>
       <ul className="space-y-2 mb-6">
         {bullets.map((b) => (
-          <li key={b} className="text-sm text-slate-400 flex items-start gap-2">
+          <li key={b} className="text-sm text-muted-foreground flex items-start gap-2">
             <span className={`mt-1.5 h-1 w-1 rounded-full ${accent === "accent" ? "bg-brand-accent" : "bg-brand-success"}`} />
             {b}
           </li>
@@ -151,3 +147,6 @@ function RoleCard({
     </Link>
   );
 }
+
+// suppress unused import when tree-shaken
+void Sparkles;

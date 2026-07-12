@@ -28,6 +28,9 @@ export const Route = createFileRoute("/recruiter/analytics")({
 });
 
 const PIE_COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#8B5CF6", "#EF4444"];
+const TOOLTIP_STYLE = { background: "#0a0f14", border: "1px solid #2D3748", borderRadius: 8, fontSize: 12, color: "#ffffff" } as const;
+const TOOLTIP_LABEL = { color: "#ffffff" } as const;
+const TOOLTIP_ITEM = { color: "#ffffff" } as const;
 
 function AnalyticsPage() {
   return (
