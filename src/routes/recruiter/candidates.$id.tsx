@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getCandidate, getJob } from "@/lib/mock-data";
 import { MatchBar } from "@/components/AtsRadial";
-import type { PortfolioLink } from "@/lib/mock-data";
+import type { Candidate, PortfolioLink } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/recruiter/candidates/$id")({
   loader: ({ params }) => {
