@@ -3,25 +3,31 @@ import { MessageSquare, Send, Sparkles } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { mockChat } from "@/lib/mock-ai";
+import { mockStreamChat } from "@/lib/mock-ai";
 
 type Msg = { role: "user" | "ai"; text: string };
 
 export function AiChatDock({ persona = "Hiring Intelligence", suggestions }: { persona?: string; suggestions?: string[] }) {
   const [open, setOpen] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([
-    { role: "ai", text: `Hi — I'm your ${persona} assistant. Ask me anything.` },
+    { role: "ai", text: `Hi — I'm your ${persona} agent. Ask me anything.` },
   ]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
 
   const send = async (text: string) => {
     if (!text.trim() || busy) return;
-    setMsgs((m) => [...m, { role: "user", text }]);
+    setMsgs((m) => [...m, { role: "user", text }, { role: "ai", text: "" }]);
     setInput("");
     setBusy(true);
-    const reply = await mockChat(text);
-    setMsgs((m) => [...m, { role: "ai", text: reply }]);
+    await mockStreamChat(text, (chunk) => {
+      setMsgs((m) => {
+        const next = [...m];
+        const last = next[next.length - 1];
+        if (last?.role === "ai") next[next.length - 1] = { role: "ai", text: last.text + chunk };
+        return next;
+      });
+    });
     setBusy(false);
   };
 
@@ -33,13 +39,13 @@ export function AiChatDock({ persona = "Hiring Intelligence", suggestions }: { p
         className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-brand-accent px-5 py-3 text-sm font-semibold text-white shadow-xl shadow-brand-accent/20 hover:brightness-110 transition"
       >
         <Sparkles className="h-4 w-4" />
-        Ask AI
+        Ask Agent
       </button>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="right" className="w-full sm:max-w-md flex flex-col bg-brand-surface border-brand-border">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4 text-brand-accent" /> AI {persona}
+              <MessageSquare className="h-4 w-4 text-brand-accent" /> Agentic {persona}
             </SheetTitle>
           </SheetHeader>
           <div className="flex-1 overflow-y-auto py-4 space-y-3">
@@ -49,15 +55,15 @@ export function AiChatDock({ persona = "Hiring Intelligence", suggestions }: { p
                 className={
                   m.role === "user"
                     ? "ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-brand-accent/15 border border-brand-accent/30 px-3 py-2 text-sm"
-                    : "mr-auto max-w-[85%] rounded-2xl rounded-tl-sm bg-brand-bg border border-brand-border px-3 py-2 text-sm text-slate-200"
+                    : "mr-auto max-w-[85%] rounded-2xl rounded-tl-sm bg-brand-bg border border-brand-border px-3 py-2 text-sm text-foreground"
                 }
               >
                 {m.text}
+                {busy && i === msgs.length - 1 && m.role === "ai" && (
+                  <span className="ml-1 inline-block h-3 w-1 bg-brand-accent align-middle animate-pulse" />
+                )}
               </div>
             ))}
-            {busy && (
-              <div className="mr-auto text-xs text-muted-foreground font-mono animate-pulse">AI is thinking…</div>
-            )}
           </div>
           {suggestions && suggestions.length > 0 && (
             <div className="flex flex-wrap gap-2 pb-3">

@@ -51,10 +51,51 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
+/* Light theme (default) */
 :root {
   --radius: 0.75rem;
 
-  /* Neon Precision — dark by default */
+  --brand-bg: #f7f9fc;
+  --brand-surface: #ffffff;
+  --brand-surface-2: #f1f5f9;
+  --brand-border: #e2e8f0;
+  --brand-accent: #2563eb;
+  --brand-success: #059669;
+  --brand-warning: #d97706;
+  --brand-danger: #dc2626;
+
+  --background: var(--brand-bg);
+  --foreground: #0f172a;
+  --card: var(--brand-surface);
+  --card-foreground: #0f172a;
+  --popover: var(--brand-surface);
+  --popover-foreground: #0f172a;
+  --primary: var(--brand-accent);
+  --primary-foreground: #ffffff;
+  --secondary: var(--brand-surface-2);
+  --secondary-foreground: #0f172a;
+  --muted: var(--brand-surface-2);
+  --muted-foreground: #64748b;
+  --accent: var(--brand-surface-2);
+  --accent-foreground: #0f172a;
+  --destructive: var(--brand-danger);
+  --destructive-foreground: #ffffff;
+  --border: var(--brand-border);
+  --input: var(--brand-border);
+  --ring: var(--brand-accent);
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #334155;
+  --sidebar-primary: var(--brand-accent);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--brand-surface-2);
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: var(--brand-border);
+  --sidebar-ring: var(--brand-accent);
+}
+
+/* Dark theme */
+.dark {
   --brand-bg: #0a0f14;
   --brand-surface: #151b23;
   --brand-surface-2: #1c242e;

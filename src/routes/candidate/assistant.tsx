@@ -4,16 +4,16 @@ import { Send, Sparkles } from "lucide-react";
 import { PageHeader, Panel } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { mockChat } from "@/lib/mock-ai";
+import { mockStreamChat } from "@/lib/mock-ai";
 
 export const Route = createFileRoute("/candidate/assistant")({
   head: () => ({
     meta: [
-      { title: "AI Career Coach — AIHire Pro" },
-      { name: "description", content: "Ask your AI coach about resumes, applications, and interviews." },
+      { title: "Personal Trainee — AIHire Pro" },
+      { name: "description", content: "Your agentic career trainee. Streaming answers on resumes, applications, and interviews." },
     ],
   }),
-  component: CoachPage,
+  component: TraineePage,
 });
 
 const QUICK = [
@@ -23,26 +23,32 @@ const QUICK = [
   "Which certifications will boost my resume?",
 ];
 
-function CoachPage() {
+function TraineePage() {
   const [msgs, setMsgs] = useState<{ role: "user" | "ai"; text: string }[]>([
-    { role: "ai", text: "Hi Alex — I'm your AI career coach. Ask me anything about your job search." },
+    { role: "ai", text: "Hi Alex — I'm your Personal Trainee. Ask me anything about your job search." },
   ]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
 
   const send = async (text: string) => {
     if (!text.trim() || busy) return;
-    setMsgs((m) => [...m, { role: "user", text }]);
+    setMsgs((m) => [...m, { role: "user", text }, { role: "ai", text: "" }]);
     setInput("");
     setBusy(true);
-    const r = await mockChat(text);
-    setMsgs((m) => [...m, { role: "ai", text: r }]);
+    await mockStreamChat(text, (chunk) => {
+      setMsgs((m) => {
+        const next = [...m];
+        const last = next[next.length - 1];
+        if (last?.role === "ai") next[next.length - 1] = { role: "ai", text: last.text + chunk };
+        return next;
+      });
+    });
     setBusy(false);
   };
 
   return (
     <div>
-      <PageHeader eyebrow="AI Coach" title="Career copilot" subtitle="Personalized guidance tuned to your profile." />
+      <PageHeader eyebrow="Personal Trainee" title="Career copilot" subtitle="Streaming, personalized guidance tuned to your profile." />
 
       <div className="grid lg:grid-cols-[1fr_260px] gap-6">
         <Panel className="flex flex-col h-[560px]">
@@ -57,9 +63,11 @@ function CoachPage() {
                 }
               >
                 {m.text}
+                {busy && i === msgs.length - 1 && m.role === "ai" && (
+                  <span className="ml-1 inline-block h-3 w-1 bg-brand-accent align-middle animate-pulse" />
+                )}
               </div>
             ))}
-            {busy && <div className="text-xs mono-label animate-pulse">AI is thinking…</div>}
           </div>
           <form
             onSubmit={(e) => {
@@ -69,7 +77,7 @@ function CoachPage() {
             className="flex gap-2 pt-4 border-t border-brand-border mt-4"
           >
             <Input
-              placeholder="Ask your AI coach…"
+              placeholder="Ask your Personal Trainee…"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="bg-brand-bg border-brand-border"
@@ -88,7 +96,7 @@ function CoachPage() {
                 className="w-full text-left text-xs rounded-lg border border-brand-border bg-brand-bg px-3 py-2.5 hover:border-brand-success transition flex items-start gap-2"
               >
                 <Sparkles className="h-3.5 w-3.5 text-brand-success mt-0.5 shrink-0" />
-                <span className="text-slate-300">{q}</span>
+                <span className="text-foreground">{q}</span>
               </button>
             ))}
           </div>

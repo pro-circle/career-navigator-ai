@@ -1,12 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Lock, Mic } from "lucide-react";
 import { PageHeader, Panel } from "@/components/AppShell";
+import { Button } from "@/components/ui/button";
 import { roadmap } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/candidate/roadmap")({
   head: () => ({
     meta: [
       { title: "Prep Roadmap — AIHire Pro" },
-      { name: "description", content: "Personalized weekly plan to close skill gaps and interview-ready." },
+      { name: "description", content: "Personalized weekly plan unlocked after your first mock interview." },
     ],
   }),
   component: RoadmapPage,
@@ -16,17 +19,43 @@ const KIND_COLOR: Record<string, string> = {
   Study: "text-brand-accent",
   Practice: "text-brand-success",
   Project: "text-brand-warning",
-  Reading: "text-slate-300",
+  Reading: "text-muted-foreground",
   Prep: "text-brand-accent",
 };
 
 function RoadmapPage() {
+  const [unlocked, setUnlocked] = useState(false);
+
+  useEffect(() => {
+    setUnlocked(typeof window !== "undefined" && localStorage.getItem("interview_completed") === "1");
+  }, []);
+
+  if (!unlocked) {
+    return (
+      <div>
+        <PageHeader eyebrow="Locked" title="Prep Roadmap" subtitle="Your personalized roadmap unlocks after your first mock interview." />
+        <Panel className="text-center py-16">
+          <div className="mx-auto grid place-items-center h-14 w-14 rounded-2xl bg-brand-warning/10 text-brand-warning mb-4">
+            <Lock className="h-6 w-6" />
+          </div>
+          <h2 className="text-lg font-semibold text-foreground mb-2">Complete a mock interview to unlock</h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
+            Your roadmap is tailored to what the agent observes in your first interview — strengths, gaps, and pacing.
+          </p>
+          <Link to="/candidate/interview">
+            <Button className="gap-2"><Mic className="h-4 w-4" /> Start mock interview</Button>
+          </Link>
+        </Panel>
+      </div>
+    );
+  }
+
   return (
     <div>
       <PageHeader
-        eyebrow="AI Preparation Planner"
+        eyebrow="Agentic Preparation Planner"
         title="Your 4-week roadmap"
-        subtitle="Personalized to your ATS gaps, target role (Senior Frontend Engineer), and target company culture."
+        subtitle="Personalized to your ATS gaps, target role, and interview performance."
       />
 
       <div className="relative">
@@ -36,16 +65,7 @@ function RoadmapPage() {
             <div key={w.week} className={`relative grid md:grid-cols-2 md:gap-12 ${i % 2 === 0 ? "" : "md:[direction:rtl]"}`}>
               <div className={`pl-12 md:pl-0 ${i % 2 === 0 ? "md:pr-8 md:text-right" : "md:pl-8"}`}>
                 <div className="mono-label">{w.week}</div>
-                <div className="text-lg font-semibold text-white mt-1">{w.focus}</div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  {i === 0
-                    ? "Set the foundation for system-design fluency."
-                    : i === 1
-                      ? "Deep dive into React internals + measurable performance wins."
-                      : i === 2
-                        ? "Sharpen behavioral stories and communication."
-                        : "Company-specific research and dry runs."}
-                </p>
+                <div className="text-lg font-semibold text-foreground mt-1">{w.focus}</div>
               </div>
               <div className={`pl-12 md:pl-0 mt-3 md:mt-0 ${i % 2 === 0 ? "md:pl-8" : "md:pr-8"} [direction:ltr]`}>
                 <Panel>
@@ -53,7 +73,7 @@ function RoadmapPage() {
                     {w.items.map((it) => (
                       <li key={it.label} className="flex gap-3 text-sm">
                         <span className={`mono-label !text-[10px] mt-0.5 w-14 shrink-0 ${KIND_COLOR[it.kind] ?? ""}`}>{it.kind}</span>
-                        <span className="text-slate-200">{it.label}</span>
+                        <span className="text-foreground">{it.label}</span>
                       </li>
                     ))}
                   </ul>

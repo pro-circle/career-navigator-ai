@@ -2,6 +2,7 @@ import { type ReactNode } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export type NavItem = {
   to: string;
@@ -30,7 +31,7 @@ export function AppShell({
             {brandBadge}
           </span>
           <div className="leading-tight">
-            <div className="text-sm font-semibold text-white">AIHire Pro</div>
+            <div className="text-sm font-semibold text-foreground">AIHire Pro</div>
             <div className="mono-label !text-[9px]">{brandName}</div>
           </div>
         </Link>
@@ -45,8 +46,8 @@ export function AppShell({
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
                   active
-                    ? "bg-brand-surface text-white border border-brand-border"
-                    : "text-slate-400 hover:text-white hover:bg-brand-surface/60",
+                    ? "bg-brand-surface text-foreground border border-brand-border"
+                    : "text-muted-foreground hover:text-foreground hover:bg-brand-surface/60",
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -60,10 +61,10 @@ export function AppShell({
           <div className="rounded-lg bg-brand-surface border border-brand-border p-3 text-xs">
             <div className="flex items-center gap-2 mb-1">
               <span className="h-2 w-2 rounded-full bg-brand-success animate-pulse" />
-              <span className="font-medium text-white">Local demo</span>
+              <span className="font-medium text-foreground">Local demo</span>
             </div>
             <div className="text-muted-foreground text-[11px]">
-              AI mocked · no backend
+              Agentic AI · server-side
             </div>
           </div>
         </div>
@@ -82,8 +83,9 @@ export function AppShell({
           </div>
           <div className="flex items-center gap-3 pr-16 md:pr-20">
             <span className="mono-label hidden sm:inline">
-              GPT-OSS-120B · <span className="text-brand-warning">MOCKED</span>
+              Agentic AI · <span className="text-brand-success">ONLINE</span>
             </span>
+            <ThemeToggle />
           </div>
         </header>
 
@@ -108,7 +110,7 @@ export function PageHeader({
     <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
       <div>
         {eyebrow && <div className="mono-label mb-2">{eyebrow}</div>}
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">{title}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">{title}</h1>
         {subtitle && <p className="mt-2 text-sm text-muted-foreground max-w-2xl">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
@@ -140,7 +142,7 @@ export function Panel({
         <header className="flex items-start justify-between mb-4">
           <div>
             {eyebrow && <div className="mono-label mb-1">{eyebrow}</div>}
-            {title && <h3 className="text-base font-semibold text-white">{title}</h3>}
+            {title && <h3 className="text-base font-semibold text-foreground">{title}</h3>}
           </div>
           {action}
         </header>
@@ -170,7 +172,7 @@ export function Stat({
   return (
     <div className="rounded-2xl border border-brand-border bg-brand-surface p-5">
       <div className="mono-label">{label}</div>
-      <div className="mt-2 text-3xl font-bold tracking-tight text-white tabular-nums">{value}</div>
+      <div className="mt-2 text-3xl font-bold tracking-tight text-foreground tabular-nums">{value}</div>
       {hint && <div className={cn("mt-1 text-xs", accentClass)}>{hint}</div>}
     </div>
   );

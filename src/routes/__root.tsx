@@ -77,14 +77,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AIHire Pro — AI-Powered Applicant Tracking System" },
+      { title: "AIHire Pro — Agentic AI Applicant Tracking" },
       {
         name: "description",
         content:
-          "AIHire Pro is an AI-powered ATS that helps recruiters rank candidates and helps job seekers prepare with adaptive mock interviews, ATS scoring, and personalized roadmaps.",
+          "AIHire Pro is an agentic-AI ATS that helps recruiters rank candidates and helps job seekers prep with adaptive mock interviews, ATS scoring, and personalized roadmaps.",
       },
       { name: "author", content: "AIHire Pro" },
-      { property: "og:title", content: "AIHire Pro — AI-Powered ATS" },
+      { property: "og:title", content: "AIHire Pro — Agentic AI ATS" },
       {
         property: "og:description",
         content:
@@ -110,10 +110,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
+const themeInitScript = `try{var t=localStorage.getItem('theme');if(t!=='light'){document.documentElement.classList.add('dark');}}catch(e){document.documentElement.classList.add('dark');}`;
+
 function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="dark">
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <HeadContent />
       </head>
       <body className="bg-background text-foreground antialiased">
@@ -131,7 +134,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Outlet />
       <SettingsDrawer />
-      <Toaster richColors position="top-right" theme="dark" />
+      <Toaster richColors position="top-right" />
     </QueryClientProvider>
   );
 }

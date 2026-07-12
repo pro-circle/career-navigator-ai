@@ -90,12 +90,12 @@ function ComparePage() {
           ))}
         </div>
 
-        <div className="mt-8 rounded-xl border border-brand-accent/30 bg-brand-accent/5 p-5">
-          <div className="mono-label text-brand-accent mb-2">AI Recommendation</div>
-          <div className="text-sm text-slate-200">
-            Move forward with <span className="font-semibold text-white">{selected[0]?.name}</span> and{" "}
-            <span className="font-semibold text-white">{selected[1]?.name}</span> to the on-site round.{" "}
-            <span className="font-semibold text-white">{selected[2]?.name}</span> is a strong hold — reconsider if either
+        <div className="mt-8 rounded-xl border-2 border-brand-success bg-brand-success/5 p-5">
+          <div className="mono-label text-brand-success mb-2">AI Recommendation</div>
+          <div className="text-sm text-foreground">
+            Move forward with <span className="font-semibold">{selected[0]?.name}</span> and{" "}
+            <span className="font-semibold">{selected[1]?.name}</span> to the on-site round.{" "}
+            <span className="font-semibold">{selected[2]?.name}</span> is a strong hold — reconsider if either
             declines.
           </div>
         </div>
