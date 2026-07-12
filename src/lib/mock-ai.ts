@@ -1,4 +1,5 @@
-// Mocked AI outputs. Swap with real Groq/GPT-OSS calls later.
+// Mocked Agentic AI outputs. Server-side agent (Groq / GPT-OSS-120B) is abstracted;
+// UI never references the underlying model name.
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -91,9 +92,137 @@ export async function mockEvaluateInterview() {
 
 export async function mockChat(prompt: string) {
   await sleep(700);
-  const reply =
-    "This is a mocked AI response. Wire Groq (GPT-OSS-120B) here later. You asked: “" +
+  return (
+    "This is a mocked agentic response. You asked: “" +
     prompt.slice(0, 160) +
-    "”. Here's a helpful pointer: focus on measurable outcomes, cite specific projects, and end with a clear question.";
-  return reply;
+    "”. Focus on measurable outcomes, cite specific projects, and close with a clear next question."
+  );
+}
+
+/** Stream a mocked agentic response token-by-token. */
+export async function mockStreamChat(prompt: string, onToken: (chunk: string) => void) {
+  const full =
+    "Analyzing your prompt... Based on your profile and target role, here is a structured take: (1) lead with measurable impact, (2) cite one specific project with numbers, (3) close with a clarifying question. You asked: “" +
+    prompt.slice(0, 160) +
+    "”.";
+  const tokens = full.split(/(\s+)/);
+  for (const t of tokens) {
+    await sleep(25 + Math.random() * 40);
+    onToken(t);
+  }
+}
+
+/** Mocked coding-question generator: difficulty + company context. */
+export async function mockCodingQuestions(difficulty: "Easy" | "Medium" | "Hard", company: string) {
+  await sleep(500);
+  const bank: Record<string, { title: string; prompt: string; starter: string; language: string }[]> = {
+    Easy: [
+      {
+        title: "Two Sum",
+        prompt:
+          "Given an array of integers `nums` and a target, return indices of the two numbers such that they add up to target. Assume exactly one solution.",
+        starter: "function twoSum(nums, target) {\n  // your code here\n}\n",
+        language: "javascript",
+      },
+      {
+        title: "Valid Parentheses",
+        prompt: "Given a string containing '(){}[]', determine if the input string is valid.",
+        starter: "function isValid(s) {\n  // your code here\n}\n",
+        language: "javascript",
+      },
+    ],
+    Medium: [
+      {
+        title: "LRU Cache",
+        prompt:
+          "Design an LRU cache with O(1) `get` and `put`. This is asked frequently at " + company + " for platform roles.",
+        starter: "class LRUCache {\n  constructor(capacity) {}\n  get(key) {}\n  put(key, value) {}\n}\n",
+        language: "javascript",
+      },
+      {
+        title: "Longest Substring Without Repeating Characters",
+        prompt: "Given a string, find the length of the longest substring without repeating characters.",
+        starter: "function lengthOfLongestSubstring(s) {\n  // your code here\n}\n",
+        language: "javascript",
+      },
+    ],
+    Hard: [
+      {
+        title: "Serialize and Deserialize a Binary Tree",
+        prompt:
+          "Design an algorithm to serialize and deserialize a binary tree. " +
+          company +
+          " often follows up with variants on n-ary trees.",
+        starter:
+          "function serialize(root) {\n  // your code here\n}\nfunction deserialize(data) {\n  // your code here\n}\n",
+        language: "javascript",
+      },
+      {
+        title: "Word Ladder",
+        prompt: "Given two words and a dictionary, find the length of the shortest transformation sequence.",
+        starter: "function ladderLength(beginWord, endWord, wordList) {\n  // your code here\n}\n",
+        language: "javascript",
+      },
+    ],
+  };
+  return bank[difficulty];
+}
+
+export async function mockEvaluateCode(code: string) {
+  await sleep(900);
+  const lines = code.split("\n").length;
+  return {
+    passed: Math.min(4, Math.max(1, Math.floor(lines / 3))),
+    total: 5,
+    complexity: "O(n)",
+    feedback: [
+      "Solution runs in expected time complexity.",
+      "Consider edge cases: empty input, single element.",
+      "Naming is clear — good use of descriptive variables.",
+    ],
+  };
+}
+
+export async function mockBuildResume(role: string, name: string) {
+  await sleep(900);
+  return {
+    role,
+    ats: 92,
+    summary: `${name} — ${role} with a track record of shipping measurable, high-impact work. ATS-optimized keywords tuned for ${role} postings.`,
+    sections: {
+      "Professional Summary": `Results-driven ${role} focused on scalable systems and cross-functional leadership.`,
+      "Core Skills": ["TypeScript", "React", "System Design", "Performance", "Mentorship"].join(" · "),
+      Experience:
+        "• Led migration reducing p95 latency by 42%\n• Owned design-system rollout across 12 product teams\n• Shipped realtime dashboards handling 40M events/day",
+      Education: "BSc Computer Science — TU Delft (2016 — 2020)",
+    },
+    tips: [
+      "Keywords tuned to " + role + " job descriptions",
+      "Uses standard section headings (ATS-safe)",
+      "One-page, no tables or columns",
+    ],
+  };
+}
+
+export async function mockCoverLetter(role: string, company: string) {
+  await sleep(800);
+  return `Dear ${company} Hiring Team,\n\nI'm applying for the ${role} role at ${company}. My work at Vector Studio — where I led a Next.js 15 migration cutting p95 latency by 42% — aligns closely with your platform engineering charter. I've also owned a design-system rollout across 12 product teams, which mirrors ${company}'s cross-functional model.\n\nWhat draws me to ${company} is the depth of your engineering blog and the caliber of open problems in your UI platform. I'd love to discuss how I can contribute.\n\nBest,\nAlex Morgan`;
+}
+
+export async function mockTranslateResume(target: string) {
+  await sleep(700);
+  const flags: Record<string, string> = {
+    Spanish: "es",
+    French: "fr",
+    German: "de",
+    Japanese: "ja",
+    Portuguese: "pt",
+    Hindi: "hi",
+  };
+  return {
+    language: target,
+    code: flags[target] ?? "xx",
+    preview: `[${target}] Resumen profesional / Résumé / Zusammenfassung — Senior Frontend Engineer con historial de entrega de sistemas escalables y liderazgo interfuncional.`,
+    note: "Translation preserves ATS keywords and section headings for the target locale.",
+  };
 }
