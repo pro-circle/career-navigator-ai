@@ -53,7 +53,7 @@ const linkIcon: Record<PortfolioLink["type"], React.ComponentType<{ className?: 
 };
 
 function CandidateDetail() {
-  const { candidate: c } = Route.useLoaderData();
+  const { candidate: c } = Route.useLoaderData() as { candidate: Candidate };
   const job = getJob(c.appliedJobId);
 
   return (
