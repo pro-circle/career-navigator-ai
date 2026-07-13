@@ -16,6 +16,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { getSettings, saveSettings, useSettings, hasSupabaseConfig } from "@/lib/settings-store";
 
+
+
 export function SettingsDrawer() {
   const settings = useSettings();
   const [open, setOpen] = useState(false);
