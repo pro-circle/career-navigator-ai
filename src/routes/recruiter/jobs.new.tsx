@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { addJob } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/recruiter/jobs/new")({
   head: () => ({
@@ -40,9 +41,25 @@ function NewJobPage() {
       toast.error("Please fill in title, description, and required qualifications.");
       return;
     }
-    toast.success("Job created (mock)", { description: `${title} is now Draft. Publish from the detail page.` });
-    navigate({ to: "/recruiter/jobs" });
+    const req = required.split("\n").map((s) => s.trim()).filter(Boolean);
+    const pref = preferred.split("\n").map((s) => s.trim()).filter(Boolean);
+    const job = addJob({
+      title: title.trim(),
+      department: department.trim() || "General",
+      location: location.trim() || "Remote",
+      employmentType: type,
+      status: "Draft",
+      deadline: deadline || new Date(Date.now() + 30 * 864e5).toISOString().slice(0, 10),
+      salary: salary.trim() || undefined,
+      requiredSkills: req,
+      preferredSkills: pref,
+      experience: seniority,
+      description: description.trim() + (responsibilities.trim() ? "\n\nResponsibilities:\n" + responsibilities.trim() : ""),
+    });
+    toast.success("Job created", { description: `${job.title} saved as Draft. Publish from the detail page.` });
+    navigate({ to: "/recruiter/jobs/$jobId", params: { jobId: job.id } });
   };
+
 
   return (
     <div>
