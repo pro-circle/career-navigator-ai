@@ -1,5 +1,8 @@
-// Mocked Agentic AI outputs. Server-side agent (Groq / GPT-OSS-120B) is abstracted;
-// UI never references the underlying model name.
+// Agentic AI helpers. When a Groq API key is present in Settings, real streaming
+// completions are used. Otherwise we fall back to structured mock output so the
+// UI remains usable without any credentials.
+import { streamCompletion, complete } from "./ai-client";
+
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -91,26 +94,23 @@ export async function mockEvaluateInterview() {
 }
 
 export async function mockChat(prompt: string) {
-  await sleep(700);
-  return (
-    "This is a mocked agentic response. You asked: “" +
-    prompt.slice(0, 160) +
-    "”. Focus on measurable outcomes, cite specific projects, and close with a clear next question."
+  return complete([
+    { role: "system", content: "You are AIHire Pro's agentic career copilot. Be concise, specific, and structured." },
+    { role: "user", content: prompt },
+  ]);
+}
+
+/** Stream an agentic response token-by-token. */
+export async function mockStreamChat(prompt: string, onToken: (chunk: string) => void) {
+  await streamCompletion(
+    [
+      { role: "system", content: "You are AIHire Pro's agentic career copilot. Be concise, specific, and structured. Prefer bullet points and clear next steps." },
+      { role: "user", content: prompt },
+    ],
+    onToken,
   );
 }
 
-/** Stream a mocked agentic response token-by-token. */
-export async function mockStreamChat(prompt: string, onToken: (chunk: string) => void) {
-  const full =
-    "Analyzing your prompt... Based on your profile and target role, here is a structured take: (1) lead with measurable impact, (2) cite one specific project with numbers, (3) close with a clarifying question. You asked: “" +
-    prompt.slice(0, 160) +
-    "”.";
-  const tokens = full.split(/(\s+)/);
-  for (const t of tokens) {
-    await sleep(25 + Math.random() * 40);
-    onToken(t);
-  }
-}
 
 /** Mocked coding-question generator: difficulty + company context. */
 export async function mockCodingQuestions(difficulty: "Easy" | "Medium" | "Hard", company: string) {

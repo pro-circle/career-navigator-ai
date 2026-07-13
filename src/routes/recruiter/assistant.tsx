@@ -51,7 +51,7 @@ function AssistantPage() {
 
       <div className="grid lg:grid-cols-[1fr_260px] gap-6">
         <Panel className="flex flex-col h-[560px]">
-          <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+          <div className="flex-1 overflow-y-auto chat-scroll space-y-3 pr-2">
             {msgs.map((m, i) => (
               <div
                 key={i}

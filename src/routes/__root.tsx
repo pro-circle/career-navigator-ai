@@ -12,7 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
-import { SettingsDrawer } from "@/components/settings/SettingsDrawer";
+
 
 function NotFoundComponent() {
   return (
@@ -133,7 +133,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
-      <SettingsDrawer />
+      
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
   );

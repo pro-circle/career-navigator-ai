@@ -2,6 +2,8 @@ import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { BarChart3, Bot, GitCompare, LayoutDashboard, ListChecks, Users } from "lucide-react";
 import { AppShell, type NavItem } from "@/components/AppShell";
 import { AiChatDock } from "@/components/AiChatDock";
+import { SettingsDrawer } from "@/components/settings/SettingsDrawer";
+
 
 const nav: NavItem[] = [
   { to: "/recruiter", label: "Dashboard", icon: LayoutDashboard },
@@ -32,6 +34,8 @@ function RecruiterLayout() {
         persona="Recruiter Intelligence"
         suggestions={["Summarize top 5 candidates", "Compare Elena vs Marcus", "Draft interview questions for j-4029"]}
       />
+      <SettingsDrawer />
     </>
+
   );
 }
