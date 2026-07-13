@@ -48,7 +48,7 @@ export function AiChatDock({ persona = "Hiring Intelligence", suggestions }: { p
               <MessageSquare className="h-4 w-4 text-brand-accent" /> Agentic {persona}
             </SheetTitle>
           </SheetHeader>
-          <div className="flex-1 overflow-y-auto py-4 space-y-3">
+          <div className="flex-1 overflow-y-auto chat-scroll py-4 space-y-3 pr-1">
             {msgs.map((m, i) => (
               <div
                 key={i}
