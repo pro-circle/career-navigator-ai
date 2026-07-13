@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Briefcase, CheckCircle2, Clock, TrendingUp, Users } from "lucide-react";
 import { PageHeader, Panel, Stat } from "@/components/AppShell";
-import { analytics, candidates, jobs } from "@/lib/mock-data";
+import { analytics, candidates, jobs, useLiveDataVersion } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/recruiter/")({
@@ -15,7 +15,14 @@ export const Route = createFileRoute("/recruiter/")({
 });
 
 function Dashboard() {
+  useLiveDataVersion();
   const activeJobs = jobs.filter((j) => j.status === "Active");
+  const funnel = analytics.funnel;
+  const total = candidates.length;
+  const shortlisted = candidates.filter((c) => c.status !== "New").length;
+  const interviews = candidates.filter((c) => c.status === "Interview").length;
+  const offers = candidates.filter((c) => c.status === "Offer").length;
+
 
   return (
     <div>
