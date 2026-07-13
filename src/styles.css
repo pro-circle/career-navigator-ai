@@ -164,3 +164,28 @@
   text-transform: uppercase;
   color: var(--muted-foreground);
 }
+
+/* Pretty scrollbars — used on chat surfaces */
+@utility chat-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-border) transparent;
+}
+.chat-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.chat-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--brand-border), var(--brand-surface-2));
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+.chat-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-accent);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
