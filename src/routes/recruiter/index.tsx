@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowUpRight, Briefcase, CheckCircle2, Clock, TrendingUp, Users } from "lucide-react";
 import { PageHeader, Panel, Stat } from "@/components/AppShell";
-import { analytics, candidates, jobs } from "@/lib/mock-data";
+import { analytics, candidates, jobs, useLiveDataVersion } from "@/lib/mock-data";
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/recruiter/")({
@@ -15,7 +15,14 @@ export const Route = createFileRoute("/recruiter/")({
 });
 
 function Dashboard() {
+  useLiveDataVersion();
   const activeJobs = jobs.filter((j) => j.status === "Active");
+  const funnel = analytics.funnel;
+  const total = candidates.length;
+  const shortlisted = candidates.filter((c) => c.status !== "New").length;
+  const interviews = candidates.filter((c) => c.status === "Interview").length;
+  const offers = candidates.filter((c) => c.status === "Offer").length;
+
 
   return (
     <div>
@@ -26,19 +33,20 @@ function Dashboard() {
       />
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <Stat label="Active Jobs" value={activeJobs.length} hint="+2 this month" />
-        <Stat label="Applications" value={492} hint="+58 this week" accent="accent" />
-        <Stat label="Shortlisted" value={148} hint="30% conversion" accent="success" />
-        <Stat label="Interviews" value={62} hint="Next 5 today" accent="warning" />
-        <Stat label="Offers" value={18} hint="+3 this quarter" accent="success" />
+        <Stat label="Active Jobs" value={activeJobs.length} />
+        <Stat label="Applications" value={total} accent="accent" />
+        <Stat label="Shortlisted" value={shortlisted} accent="success" />
+        <Stat label="Interviews" value={interviews} accent="warning" />
+        <Stat label="Offers" value={offers} accent="success" />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6 mt-8">
         <Panel eyebrow="Pipeline" title="Hiring funnel" className="lg:col-span-2">
           <div className="space-y-3">
-            {analytics.funnel.map((s, i) => {
-              const max = analytics.funnel[0].value;
+            {funnel.map((s, i) => {
+              const max = Math.max(1, funnel[0].value);
               const pct = (s.value / max) * 100;
+
               const colors = ["bg-brand-accent", "bg-brand-accent/80", "bg-brand-accent/60", "bg-brand-success/80", "bg-brand-success"];
               return (
                 <div key={s.stage} className="grid grid-cols-[120px_1fr_60px] items-center gap-4 text-sm">

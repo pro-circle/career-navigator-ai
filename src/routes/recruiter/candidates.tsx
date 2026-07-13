@@ -6,7 +6,7 @@ import { PageHeader, Panel } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { candidates, jobs } from "@/lib/mock-data";
+import { candidates, jobs, useLiveDataVersion } from "@/lib/mock-data";
 import { MatchBar } from "@/components/AtsRadial";
 
 export const Route = createFileRoute("/recruiter/candidates")({
@@ -20,7 +20,9 @@ export const Route = createFileRoute("/recruiter/candidates")({
 });
 
 function CandidatesPage() {
+  useLiveDataVersion();
   const [q, setQ] = useState("");
+
   const [job, setJob] = useState<string>("all");
   const [sort, setSort] = useState<"match" | "ats" | "portfolio" | "experience">("match");
 
