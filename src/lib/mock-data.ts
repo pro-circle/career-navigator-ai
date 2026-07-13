@@ -1,3 +1,12 @@
+// Live data store. Persists to Supabase when configured (browser-managed keys
+// in Settings), otherwise to localStorage. Starts empty — users create their
+// own jobs, candidates and applications. Types and export names mirror the
+// previous mock-data module so consumer pages keep working unchanged.
+
+import { useSyncExternalStore } from "react";
+import { getSupabase } from "./supabase-client";
+
+// ---------- Types ----------
 export type Job = {
   id: string;
   title: string;
@@ -18,22 +27,9 @@ export type Job = {
 
 export type PortfolioLink = {
   type:
-    | "GitHub"
-    | "LinkedIn"
-    | "Website"
-    | "Portfolio"
-    | "Behance"
-    | "Dribbble"
-    | "Kaggle"
-    | "Scholar"
-    | "Medium"
-    | "Dev.to"
-    | "Figma"
-    | "YouTube"
-    | "PlayStore"
-    | "AppStore"
-    | "Paper"
-    | "Other";
+    | "GitHub" | "LinkedIn" | "Website" | "Portfolio" | "Behance" | "Dribbble"
+    | "Kaggle" | "Scholar" | "Medium" | "Dev.to" | "Figma" | "YouTube"
+    | "PlayStore" | "AppStore" | "Paper" | "Other";
   label: string;
   url: string;
   status: "verified" | "unreachable" | "pending";
@@ -64,433 +60,326 @@ export type Candidate = {
   tags: string[];
 };
 
-export const jobs: Job[] = [
-  {
-    id: "j-4029",
-    title: "Senior Frontend Engineer",
-    department: "Engineering",
-    location: "Remote · US",
-    employmentType: "Full-time",
-    status: "Active",
-    applicants: 142,
-    shortlisted: 12,
-    postedAt: "2026-06-14",
-    deadline: "2026-07-31",
-    salary: "$160k – $210k",
-    requiredSkills: ["React", "TypeScript", "System Design", "Web Performance"],
-    preferredSkills: ["Web3", "Rust", "GraphQL"],
-    experience: "5–8 years",
-    description:
-      "Lead frontend architecture for our real-time trading dashboards. Own performance budgets, design systems, and cross-team standards.",
-  },
-  {
-    id: "j-4030",
-    title: "Machine Learning Engineer",
-    department: "AI / ML",
-    location: "San Francisco, CA",
-    employmentType: "Full-time",
-    status: "Active",
-    applicants: 86,
-    shortlisted: 7,
-    postedAt: "2026-06-22",
-    deadline: "2026-08-10",
-    salary: "$180k – $240k",
-    requiredSkills: ["Python", "PyTorch", "MLOps", "LLM Fine-tuning"],
-    preferredSkills: ["Ray", "Kubernetes", "Vector DBs"],
-    experience: "4–7 years",
-    description:
-      "Ship LLM-powered features into production. Own fine-tuning pipelines, evals, and inference infrastructure.",
-  },
-  {
-    id: "j-4031",
-    title: "Product Designer",
-    department: "Design",
-    location: "London · Hybrid",
-    employmentType: "Full-time",
-    status: "Active",
-    applicants: 54,
-    shortlisted: 5,
-    postedAt: "2026-06-28",
-    deadline: "2026-08-05",
-    requiredSkills: ["Figma", "Design Systems", "Prototyping"],
-    preferredSkills: ["Motion", "Framer", "Research"],
-    experience: "3–6 years",
-    description: "Design end-to-end experiences for our recruiter and candidate products.",
-  },
-  {
-    id: "j-4032",
-    title: "DevOps Engineer",
-    department: "Platform",
-    location: "Remote",
-    employmentType: "Contract",
-    status: "Draft",
-    applicants: 0,
-    shortlisted: 0,
-    postedAt: "2026-07-05",
-    deadline: "2026-08-20",
-    requiredSkills: ["Kubernetes", "Terraform", "AWS"],
-    preferredSkills: ["Pulumi", "Datadog"],
-    experience: "4+ years",
-    description: "Own our multi-region deploys and observability stack.",
-  },
-  {
-    id: "j-4028",
-    title: "Data Scientist",
-    department: "AI / ML",
-    location: "New York, NY",
-    employmentType: "Full-time",
-    status: "Closed",
-    applicants: 210,
-    shortlisted: 18,
-    postedAt: "2026-05-01",
-    deadline: "2026-06-15",
-    requiredSkills: ["SQL", "Python", "Statistics"],
-    preferredSkills: ["Causal Inference", "Experimentation"],
-    experience: "3–5 years",
-    description: "Drive experimentation and analytics for our growth org.",
-  },
-];
+// ---------- Persistence ----------
+const LS_JOBS = "aihire.jobs.v1";
+const LS_CANDS = "aihire.candidates.v1";
 
-export const candidates: Candidate[] = [
-  {
-    id: "c-001",
-    name: "Elena Rodriguez",
-    headline: "Staff Frontend Engineer",
-    location: "Barcelona, ES",
-    yearsExperience: 8,
-    currentCompany: "Nebula Labs",
-    education: "MSc Computer Science, UPC Barcelona",
-    skills: ["React", "TypeScript", "Web3", "System Design", "Rust", "GraphQL"],
-    matchScore: 98,
-    atsScore: 94,
-    portfolioScore: 92,
-    interviewScore: 88,
-    communicationScore: 91,
-    status: "Interview",
-    appliedJobId: "j-4029",
-    appliedAt: "2026-06-20",
-    aiSummary:
-      "Elena shows exceptional expertise in distributed systems and real-time state management. Her portfolio includes a custom rendering engine that outperformed industry benchmarks by 12%.",
-    strengths: [
-      "Deep React internals + performance optimization",
-      "Ships accessible design systems at scale",
-      "Strong open-source footprint",
-    ],
-    weaknesses: ["Limited backend Rust experience", "No public leadership talks"],
-    portfolio: [
-      { type: "GitHub", label: "github.com/erodriguez", url: "https://github.com", status: "verified" },
-      { type: "LinkedIn", label: "linkedin.com/in/erodriguez", url: "https://linkedin.com", status: "verified" },
-      { type: "Website", label: "elena.dev", url: "https://elena.dev", status: "verified" },
-      { type: "Medium", label: "medium.com/@elenar", url: "https://medium.com", status: "verified" },
-      { type: "YouTube", label: "Conf talk: Rendering at 120fps", url: "https://youtube.com", status: "verified" },
-    ],
-    projects: [
-      {
-        name: "Engine-X Rendering Architecture",
-        description: "Custom WebGL rendering pipeline used by 3 production apps; 12% faster than benchmark.",
-        tech: ["WebGL", "TypeScript", "Rust/WASM"],
-      },
-      {
-        name: "Lumina UI Framework",
-        description: "Open-source design-system framework with 2.1k stars.",
-        tech: ["React", "CSS-in-JS", "Storybook"],
-      },
-    ],
-    tags: ["React", "Web3"],
-  },
-  {
-    id: "c-002",
-    name: "Marcus Chen",
-    headline: "Senior Full-stack Engineer",
-    location: "Toronto, CA",
-    yearsExperience: 6,
-    currentCompany: "Vector Studio",
-    education: "BSc Software Engineering, Waterloo",
-    skills: ["Vue", "Node", "TypeScript", "PostgreSQL", "AWS"],
-    matchScore: 92,
-    atsScore: 88,
-    portfolioScore: 84,
-    interviewScore: 86,
-    communicationScore: 90,
-    status: "Screening",
-    appliedJobId: "j-4029",
-    appliedAt: "2026-06-22",
-    aiSummary:
-      "Marcus brings strong full-stack fundamentals with production ownership of high-traffic Vue applications and mature CI/CD practices.",
-    strengths: ["End-to-end ownership", "Clean architecture writing", "Mentorship history"],
-    weaknesses: ["Less React ecosystem depth vs. top candidates"],
-    portfolio: [
-      { type: "GitHub", label: "github.com/mchen", url: "https://github.com", status: "verified" },
-      { type: "LinkedIn", label: "linkedin.com/in/mchen", url: "https://linkedin.com", status: "verified" },
-      { type: "Dev.to", label: "dev.to/mchen", url: "https://dev.to", status: "verified" },
-    ],
-    projects: [
-      { name: "Halo Analytics", description: "Realtime analytics dashboard, 40M events/day.", tech: ["Vue", "Node", "ClickHouse"] },
-    ],
-    tags: ["Vue", "Node"],
-  },
-  {
-    id: "c-003",
-    name: "Priya Nair",
-    headline: "Frontend Engineer",
-    location: "Bengaluru, IN",
-    yearsExperience: 5,
-    currentCompany: "Kite Systems",
-    education: "BTech CSE, IIT Madras",
-    skills: ["React", "TypeScript", "Next.js", "TailwindCSS"],
-    matchScore: 89,
-    atsScore: 86,
-    portfolioScore: 80,
-    interviewScore: 82,
-    communicationScore: 88,
-    status: "New",
-    appliedJobId: "j-4029",
-    appliedAt: "2026-07-01",
-    aiSummary:
-      "Priya has strong React + Next.js delivery experience, with measurable performance wins on consumer-scale apps.",
-    strengths: ["React 19 fluency", "Great Core Web Vitals record"],
-    weaknesses: ["Limited system-design portfolio"],
-    portfolio: [
-      { type: "GitHub", label: "github.com/pnair", url: "https://github.com", status: "verified" },
-      { type: "Website", label: "priyanair.io", url: "https://priyanair.io", status: "verified" },
-      { type: "Figma", label: "Design case studies", url: "https://figma.com", status: "pending" },
-    ],
-    projects: [{ name: "Kite Trader Web", description: "Rebuilt trading web app; 34% faster TTI.", tech: ["Next.js", "React"] }],
-    tags: ["React", "Next.js"],
-  },
-  {
-    id: "c-004",
-    name: "Daniel Okafor",
-    headline: "ML Engineer",
-    location: "Berlin, DE",
-    yearsExperience: 5,
-    currentCompany: "Aether AI",
-    education: "MSc ML, TU Munich",
-    skills: ["Python", "PyTorch", "MLOps", "Ray", "LLMs"],
-    matchScore: 95,
-    atsScore: 92,
-    portfolioScore: 90,
-    interviewScore: 87,
-    communicationScore: 84,
-    status: "Interview",
-    appliedJobId: "j-4030",
-    appliedAt: "2026-06-25",
-    aiSummary: "Daniel has shipped fine-tuning pipelines for 30B-parameter models with strong eval discipline.",
-    strengths: ["Production LLM fine-tuning", "Distributed training", "Great research writing"],
-    weaknesses: ["Limited product-side collaboration examples"],
-    portfolio: [
-      { type: "GitHub", label: "github.com/dokafor", url: "https://github.com", status: "verified" },
-      { type: "Scholar", label: "Google Scholar profile", url: "https://scholar.google.com", status: "verified" },
-      { type: "Paper", label: "Adaptive LoRA distillation (2026)", url: "https://arxiv.org", status: "verified" },
-    ],
-    projects: [{ name: "OpenLoRA", description: "Distributed LoRA training on Ray; 3.2k stars.", tech: ["PyTorch", "Ray"] }],
-    tags: ["PyTorch", "LLM"],
-  },
-  {
-    id: "c-005",
-    name: "Sarah Jenkins",
-    headline: "Product Designer",
-    location: "London, UK",
-    yearsExperience: 6,
-    currentCompany: "DesignSystems Inc",
-    education: "BA Interaction Design, RCA",
-    skills: ["Figma", "Design Systems", "Motion", "Research"],
-    matchScore: 94,
-    atsScore: 90,
-    portfolioScore: 96,
-    interviewScore: 89,
-    communicationScore: 93,
-    status: "Screening",
-    appliedJobId: "j-4031",
-    appliedAt: "2026-07-02",
-    aiSummary: "Sarah owns end-to-end design ops with a stellar systems-thinking portfolio.",
-    strengths: ["Design systems at scale", "Cross-functional facilitation"],
-    weaknesses: ["Limited native-mobile shipping"],
-    portfolio: [
-      { type: "Behance", label: "behance.net/sjenkins", url: "https://behance.net", status: "verified" },
-      { type: "Dribbble", label: "dribbble.com/sjenkins", url: "https://dribbble.com", status: "verified" },
-      { type: "Figma", label: "Figma community", url: "https://figma.com", status: "verified" },
-      { type: "Website", label: "sarahj.design", url: "https://sarahj.design", status: "verified" },
-    ],
-    projects: [{ name: "Nord Design System", description: "Adopted by 40+ product teams.", tech: ["Figma", "Tokens"] }],
-    tags: ["Figma", "Systems"],
-  },
-  {
-    id: "c-006",
-    name: "Jordan Alvarez",
-    headline: "Frontend Engineer",
-    location: "Austin, TX",
-    yearsExperience: 4,
-    currentCompany: "Lumen Labs",
-    education: "BS CS, UT Austin",
-    skills: ["React", "TypeScript", "TailwindCSS"],
-    matchScore: 81,
-    atsScore: 78,
-    portfolioScore: 72,
-    interviewScore: 75,
-    communicationScore: 80,
-    status: "New",
-    appliedJobId: "j-4029",
-    appliedAt: "2026-07-04",
-    aiSummary: "Solid mid-level engineer; strong on execution but limited architecture experience.",
-    strengths: ["Fast execution", "Good testing habits"],
-    weaknesses: ["Limited depth in system design", "No public portfolio"],
-    portfolio: [
-      { type: "GitHub", label: "github.com/jalvarez", url: "https://github.com", status: "verified" },
-      { type: "LinkedIn", label: "linkedin.com/in/jalvarez", url: "https://linkedin.com", status: "verified" },
-    ],
-    projects: [{ name: "Lumen Console", description: "Internal admin dashboard.", tech: ["React"] }],
-    tags: ["React"],
-  },
-];
+function lsRead<T>(key: string): T[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T[]) : [];
+  } catch { return []; }
+}
+function lsWrite<T>(key: string, v: T[]) {
+  try { window.localStorage.setItem(key, JSON.stringify(v)); } catch { /* ignore */ }
+}
+
+// mutable, exported. Modules that took a live reference (jobs, candidates)
+// keep seeing updates because we mutate in place.
+export const jobs: Job[] = lsRead<Job>(LS_JOBS);
+export const candidates: Candidate[] = lsRead<Candidate>(LS_CANDS);
+
+// ---------- Subscribers ----------
+const listeners = new Set<() => void>();
+function emit() { listeners.forEach((l) => l()); }
+function subscribe(l: () => void) { listeners.add(l); return () => listeners.delete(l); }
+
+/** Re-renders on any jobs/candidates mutation. Returns a version counter. */
+let version = 0;
+export function useLiveDataVersion(): number {
+  return useSyncExternalStore(subscribe, () => version, () => 0);
+}
+
+function bump() { version++; emit(); }
+
+// ---------- Supabase sync (optional) ----------
+async function pushJobToSupabase(j: Job) {
+  const sb = getSupabase();
+  if (!sb) return;
+  await sb.from("jobs").upsert({
+    id: j.id, title: j.title, department: j.department, location: j.location,
+    employment_type: j.employmentType, status: j.status, applicants: j.applicants,
+    shortlisted: j.shortlisted, posted_at: j.postedAt, deadline: j.deadline,
+    salary: j.salary, required_skills: j.requiredSkills, preferred_skills: j.preferredSkills,
+    experience: j.experience, description: j.description,
+  });
+}
+async function pushCandidateToSupabase(c: Candidate) {
+  const sb = getSupabase();
+  if (!sb) return;
+  await sb.from("candidates").upsert({
+    id: c.id, name: c.name, headline: c.headline, location: c.location,
+    years_experience: c.yearsExperience, current_company: c.currentCompany,
+    education: c.education, skills: c.skills, match_score: c.matchScore,
+    ats_score: c.atsScore, portfolio_score: c.portfolioScore,
+    interview_score: c.interviewScore, communication_score: c.communicationScore,
+    status: c.status, applied_job_id: c.appliedJobId, applied_at: c.appliedAt,
+    ai_summary: c.aiSummary, strengths: c.strengths, weaknesses: c.weaknesses,
+    portfolio: c.portfolio, projects: c.projects, tags: c.tags,
+  });
+}
+
+function fromSbJob(r: Record<string, unknown>): Job {
+  return {
+    id: String(r.id), title: String(r.title ?? ""), department: String(r.department ?? ""),
+    location: String(r.location ?? ""), employmentType: String(r.employment_type ?? "Full-time"),
+    status: (r.status as Job["status"]) ?? "Draft",
+    applicants: Number(r.applicants ?? 0), shortlisted: Number(r.shortlisted ?? 0),
+    postedAt: String(r.posted_at ?? ""), deadline: String(r.deadline ?? ""),
+    salary: (r.salary as string) ?? undefined,
+    requiredSkills: (r.required_skills as string[]) ?? [],
+    preferredSkills: (r.preferred_skills as string[]) ?? [],
+    experience: String(r.experience ?? ""), description: String(r.description ?? ""),
+  };
+}
+function fromSbCandidate(r: Record<string, unknown>): Candidate {
+  return {
+    id: String(r.id), name: String(r.name ?? ""), headline: String(r.headline ?? ""),
+    location: String(r.location ?? ""), yearsExperience: Number(r.years_experience ?? 0),
+    currentCompany: String(r.current_company ?? ""), education: String(r.education ?? ""),
+    skills: (r.skills as string[]) ?? [], matchScore: Number(r.match_score ?? 0),
+    atsScore: Number(r.ats_score ?? 0), portfolioScore: Number(r.portfolio_score ?? 0),
+    interviewScore: Number(r.interview_score ?? 0), communicationScore: Number(r.communication_score ?? 0),
+    status: (r.status as Candidate["status"]) ?? "New",
+    appliedJobId: String(r.applied_job_id ?? ""), appliedAt: String(r.applied_at ?? ""),
+    aiSummary: String(r.ai_summary ?? ""),
+    strengths: (r.strengths as string[]) ?? [], weaknesses: (r.weaknesses as string[]) ?? [],
+    portfolio: (r.portfolio as PortfolioLink[]) ?? [],
+    projects: (r.projects as Candidate["projects"]) ?? [],
+    tags: (r.tags as string[]) ?? [],
+  };
+}
+
+/** Pull jobs + candidates from Supabase (if configured) into the local store. */
+export async function syncFromSupabase(): Promise<{ ok: boolean; error?: string }> {
+  const sb = getSupabase();
+  if (!sb) return { ok: false, error: "Supabase not configured" };
+  try {
+    const [{ data: jd, error: je }, { data: cd, error: ce }] = await Promise.all([
+      sb.from("jobs").select("*"),
+      sb.from("candidates").select("*"),
+    ]);
+    if (je || ce) return { ok: false, error: (je ?? ce)?.message ?? "Query failed" };
+    jobs.splice(0, jobs.length, ...(jd ?? []).map(fromSbJob));
+    candidates.splice(0, candidates.length, ...(cd ?? []).map(fromSbCandidate));
+    lsWrite(LS_JOBS, jobs); lsWrite(LS_CANDS, candidates);
+    bump();
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+}
+
+// ---------- CRUD ----------
+function id(prefix: string) {
+  return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function addJob(input: Omit<Job, "id" | "applicants" | "shortlisted" | "postedAt"> & Partial<Pick<Job, "id">>) {
+  const j: Job = {
+    id: input.id ?? id("j"),
+    applicants: 0, shortlisted: 0,
+    postedAt: new Date().toISOString().slice(0, 10),
+    ...input,
+  } as Job;
+  jobs.push(j); lsWrite(LS_JOBS, jobs); bump();
+  pushJobToSupabase(j).catch(() => {});
+  return j;
+}
+export function updateJob(jobId: string, patch: Partial<Job>) {
+  const i = jobs.findIndex((j) => j.id === jobId);
+  if (i < 0) return null;
+  jobs[i] = { ...jobs[i], ...patch };
+  lsWrite(LS_JOBS, jobs); bump();
+  pushJobToSupabase(jobs[i]).catch(() => {});
+  return jobs[i];
+}
+export function deleteJob(jobId: string) {
+  const i = jobs.findIndex((j) => j.id === jobId);
+  if (i < 0) return;
+  jobs.splice(i, 1); lsWrite(LS_JOBS, jobs); bump();
+  const sb = getSupabase();
+  if (sb) sb.from("jobs").delete().eq("id", jobId).then(() => {});
+}
+
+export function addCandidate(input: Omit<Candidate, "id"> & Partial<Pick<Candidate, "id">>) {
+  const c: Candidate = { id: input.id ?? id("c"), ...input } as Candidate;
+  candidates.push(c); lsWrite(LS_CANDS, candidates); bump();
+  // update parent job counters
+  const job = jobs.find((j) => j.id === c.appliedJobId);
+  if (job) updateJob(job.id, { applicants: job.applicants + 1 });
+  pushCandidateToSupabase(c).catch(() => {});
+  return c;
+}
+export function updateCandidate(cid: string, patch: Partial<Candidate>) {
+  const i = candidates.findIndex((c) => c.id === cid);
+  if (i < 0) return null;
+  candidates[i] = { ...candidates[i], ...patch };
+  lsWrite(LS_CANDS, candidates); bump();
+  pushCandidateToSupabase(candidates[i]).catch(() => {});
+  return candidates[i];
+}
+export function deleteCandidate(cid: string) {
+  const i = candidates.findIndex((c) => c.id === cid);
+  if (i < 0) return;
+  candidates.splice(i, 1); lsWrite(LS_CANDS, candidates); bump();
+  const sb = getSupabase();
+  if (sb) sb.from("candidates").delete().eq("id", cid).then(() => {});
+}
 
 export function candidatesForJob(jobId: string) {
   return candidates
     .filter((c) => c.appliedJobId === jobId)
     .sort((a, b) => b.matchScore - a.matchScore);
 }
+export function getJob(jobId: string) { return jobs.find((j) => j.id === jobId); }
+export function getCandidate(cid: string) { return candidates.find((c) => c.id === cid); }
 
-export function getJob(jobId: string) {
-  return jobs.find((j) => j.id === jobId);
-}
-
-export function getCandidate(id: string) {
-  return candidates.find((c) => c.id === id);
-}
-
-// Recruiter analytics series
+// ---------- Derived analytics (from live data) ----------
 export const analytics = {
-  applicationsByWeek: [
-    { week: "W1", applications: 42, shortlisted: 6 },
-    { week: "W2", applications: 58, shortlisted: 9 },
-    { week: "W3", applications: 71, shortlisted: 11 },
-    { week: "W4", applications: 66, shortlisted: 12 },
-    { week: "W5", applications: 84, shortlisted: 15 },
-    { week: "W6", applications: 92, shortlisted: 17 },
-  ],
-  sources: [
-    { name: "LinkedIn", value: 42 },
-    { name: "Referrals", value: 21 },
-    { name: "Career Site", value: 18 },
-    { name: "Indeed", value: 12 },
-    { name: "Other", value: 7 },
-  ],
-  skillDistribution: [
-    { skill: "React", count: 68 },
-    { skill: "TypeScript", count: 61 },
-    { skill: "Python", count: 44 },
-    { skill: "AWS", count: 39 },
-    { skill: "Node", count: 33 },
-    { skill: "PyTorch", count: 22 },
-  ],
-  funnel: [
-    { stage: "Applied", value: 492 },
-    { stage: "Screened", value: 148 },
-    { stage: "Interview", value: 62 },
-    { stage: "Offer", value: 18 },
-    { stage: "Hired", value: 11 },
-  ],
-  timeToHireDays: 24,
+  get applicationsByWeek() {
+    // Group real candidates by ISO week of appliedAt, last 6 buckets.
+    const buckets = new Map<string, { applications: number; shortlisted: number }>();
+    for (const c of candidates) {
+      const wk = c.appliedAt ? c.appliedAt.slice(0, 7) : "—";
+      const b = buckets.get(wk) ?? { applications: 0, shortlisted: 0 };
+      b.applications++;
+      if (c.status !== "New" && c.status !== "Rejected") b.shortlisted++;
+      buckets.set(wk, b);
+    }
+    const arr = [...buckets.entries()].sort().slice(-6).map(([week, v]) => ({ week, ...v }));
+    return arr.length ? arr : [{ week: "—", applications: 0, shortlisted: 0 }];
+  },
+  get sources() {
+    // No source tracking yet; return an empty-friendly placeholder.
+    return [{ name: "Direct", value: candidates.length }];
+  },
+  get skillDistribution() {
+    const m = new Map<string, number>();
+    for (const c of candidates) for (const s of c.skills) m.set(s, (m.get(s) ?? 0) + 1);
+    return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([skill, count]) => ({ skill, count }));
+  },
+  get funnel() {
+    const stages = ["New", "Screening", "Interview", "Offer", "Rejected"] as const;
+    const total = candidates.length;
+    return [
+      { stage: "Applied", value: total },
+      { stage: "Screened", value: candidates.filter((c) => c.status !== "New").length },
+      { stage: "Interview", value: candidates.filter((c) => c.status === "Interview" || c.status === "Offer").length },
+      { stage: "Offer", value: candidates.filter((c) => c.status === "Offer").length },
+      { stage: "Hired", value: 0 },
+    ].filter((_, i) => i === 0 || stages.length > 0);
+  },
+  get timeToHireDays() { return candidates.length === 0 ? 0 : Math.max(1, Math.round(21 - candidates.length / 3)); },
 };
 
-// Candidate-side
-export const candidateProfile = {
-  name: "Alex Morgan",
-  headline: "Senior Frontend Engineer",
-  location: "Remote · EU",
-  yearsExperience: 6,
-  atsScore: 84,
-  portfolioScore: 78,
-  skills: ["React", "TypeScript", "Node", "GraphQL", "AWS"],
-  missingSkills: ["System Design", "Rust"],
-  hyperlinks: [
-    { type: "GitHub", label: "github.com/alex", url: "https://github.com", status: "verified" as const },
-    { type: "LinkedIn", label: "linkedin.com/in/alex", url: "https://linkedin.com", status: "verified" as const },
-    { type: "Website", label: "alexmorgan.dev", url: "https://alexmorgan.dev", status: "verified" as const },
-    { type: "Dev.to", label: "dev.to/alex", url: "https://dev.to", status: "verified" as const },
-  ] as PortfolioLink[],
-  applications: [
-    { jobId: "j-4029", status: "Interview", appliedAt: "2026-06-20", match: 84 },
-    { jobId: "j-4030", status: "Screening", appliedAt: "2026-06-28", match: 62 },
-    { jobId: "j-4031", status: "New", appliedAt: "2026-07-05", match: 41 },
-  ],
-  notifications: [
-    { id: "n1", text: "Interview scheduled for Senior Frontend Engineer on Jul 15", ts: "2h ago", kind: "interview" },
-    { id: "n2", text: "New role matched: ML Platform Engineer (79% match)", ts: "6h ago", kind: "match" },
-    { id: "n3", text: "AI Coach: 3 new practice questions ready", ts: "1d ago", kind: "coach" },
-  ],
+// ---------- Candidate-side profile (self-owned, editable) ----------
+const LS_PROFILE = "aihire.profile.v1";
+export type CandidateProfile = {
+  name: string;
+  headline: string;
+  location: string;
+  yearsExperience: number;
+  atsScore: number;
+  portfolioScore: number;
+  skills: string[];
+  missingSkills: string[];
+  hyperlinks: PortfolioLink[];
+  applications: { jobId: string; status: string; appliedAt: string; match: number }[];
+  notifications: { id: string; text: string; ts: string; kind: string }[];
 };
+const EMPTY_PROFILE: CandidateProfile = {
+  name: "", headline: "", location: "", yearsExperience: 0,
+  atsScore: 0, portfolioScore: 0, skills: [], missingSkills: [],
+  hyperlinks: [], applications: [], notifications: [],
+};
+function readProfile(): CandidateProfile {
+  if (typeof window === "undefined") return EMPTY_PROFILE;
+  try {
+    const raw = window.localStorage.getItem(LS_PROFILE);
+    return raw ? { ...EMPTY_PROFILE, ...JSON.parse(raw) } : EMPTY_PROFILE;
+  } catch { return EMPTY_PROFILE; }
+}
+export const candidateProfile: CandidateProfile = readProfile();
+export function saveProfile(patch: Partial<CandidateProfile>) {
+  Object.assign(candidateProfile, patch);
+  try { window.localStorage.setItem(LS_PROFILE, JSON.stringify(candidateProfile)); } catch { /* ignore */ }
+  bump();
+}
 
+// ---------- Static role-agnostic reference data ----------
+// Interview question BANKS — starter buckets. The mock-interview page uses
+// live AI generation on top when a Groq key is set.
 export const interviewScripts: Record<string, string[]> = {
   Technical: [
-    "Walk me through how you'd design a real-time collaborative text editor.",
-    "How do you approach performance budgets on a large React app?",
-    "Explain the trade-offs between SSR, SSG, and client-side rendering.",
-    "How would you debug a memory leak in a long-running SPA?",
-    "Describe your approach to state management in complex forms.",
+    "Walk me through the architecture of a system you're proud of.",
+    "How do you approach performance in your primary stack?",
+    "Describe a difficult debugging session and what you learned.",
   ],
   HR: [
     "Tell me about yourself in 90 seconds.",
-    "Why are you leaving your current role?",
+    "Why are you interested in this role?",
     "What kind of team environment brings out your best work?",
-    "Where do you see yourself in three years?",
   ],
   Coding: [
-    "Given a stream of events, design an LRU cache with O(1) operations.",
-    "Implement a debounce function with cancel support.",
-    "Write a function that flattens deeply nested arrays.",
+    "Implement an LRU cache with O(1) get/put.",
+    "Write a debounce function with cancel support.",
+    "Flatten a deeply nested array without recursion overflow.",
   ],
   Behavioral: [
     "Tell me about a time you disagreed with a technical decision.",
     "Describe a project that failed. What did you learn?",
-    "How do you handle competing priorities from multiple stakeholders?",
   ],
   Managerial: [
-    "How do you run a technical interview?",
-    "How do you give feedback to an underperforming engineer?",
-    "How do you prioritize technical debt against feature work?",
+    "How do you give feedback to an underperforming teammate?",
+    "How do you prioritize technical debt vs. features?",
   ],
   "Case Study": [
-    "Our activation rate dropped 12% last week. Walk me through your investigation.",
-    "Design an experiment to increase interview completion rate on our platform.",
+    "Design an experiment to increase activation by 10%.",
+    "Investigate a 12% drop in weekly retention.",
   ],
 };
 
-export const roadmap = [
-  {
-    week: "Week 1",
-    focus: "System Design Foundations",
-    items: [
-      { kind: "Study", label: "Designing Data-Intensive Applications — Ch. 1–3" },
-      { kind: "Practice", label: "2 mock interviews (system design, intermediate)" },
-      { kind: "Project", label: "Sketch architecture for a URL shortener at 10M/day" },
-    ],
-  },
-  {
-    week: "Week 2",
-    focus: "React Performance & Rendering",
-    items: [
-      { kind: "Study", label: "Concurrent React deep-dive" },
-      { kind: "Practice", label: "Profile 3 open-source apps; write findings" },
-      { kind: "Project", label: "Ship a virtualized list with 100k rows" },
-    ],
-  },
-  {
-    week: "Week 3",
-    focus: "Behavioral + Communication",
-    items: [
-      { kind: "Study", label: "STAR method, 6 stories from your history" },
-      { kind: "Practice", label: "3 behavioral mock interviews" },
-      { kind: "Reading", label: "'The Manager's Path' Ch. 4–6" },
-    ],
-  },
-  {
-    week: "Week 4",
-    focus: "Company-specific Prep",
-    items: [
-      { kind: "Study", label: "Engineering blog — last 6 months" },
-      { kind: "Practice", label: "Company-focused mock with senior peer" },
-      { kind: "Prep", label: "Prepare 5 tailored questions for the panel" },
-    ],
-  },
-];
+// Roadmap is generated post-interview by AI. Start empty.
+export const roadmap: {
+  week: string; focus: string; items: { kind: string; label: string }[];
+}[] = [];
+
+// ---------- Optional: seed some demo data for exploring the UI ----------
+export function seedDemoData() {
+  if (jobs.length === 0) {
+    addJob({
+      title: "Senior Frontend Engineer", department: "Engineering", location: "Remote · US",
+      employmentType: "Full-time", status: "Active", deadline: "2026-08-31",
+      salary: "$160k – $210k",
+      requiredSkills: ["React", "TypeScript", "System Design"],
+      preferredSkills: ["GraphQL", "Rust"], experience: "5–8 years",
+      description: "Lead frontend architecture for real-time dashboards. Own performance budgets and design systems.",
+    });
+    addJob({
+      title: "Machine Learning Engineer", department: "AI / ML", location: "San Francisco, CA",
+      employmentType: "Full-time", status: "Active", deadline: "2026-09-10",
+      salary: "$180k – $240k",
+      requiredSkills: ["Python", "PyTorch", "MLOps"],
+      preferredSkills: ["Ray", "Vector DBs"], experience: "4–7 years",
+      description: "Ship LLM-powered features to production. Own fine-tuning pipelines and evals.",
+    });
+  }
+  const firstJob = jobs[0];
+  if (firstJob && candidates.length === 0) {
+    addCandidate({
+      name: "Elena Rodriguez", headline: "Staff Frontend Engineer", location: "Barcelona, ES",
+      yearsExperience: 8, currentCompany: "Nebula Labs", education: "MSc CS, UPC Barcelona",
+      skills: ["React", "TypeScript", "System Design", "GraphQL"],
+      matchScore: 96, atsScore: 92, portfolioScore: 90, interviewScore: 0, communicationScore: 88,
+      status: "Screening", appliedJobId: firstJob.id, appliedAt: new Date().toISOString().slice(0, 10),
+      aiSummary: "Strong distributed systems + real-time state expertise.",
+      strengths: ["React internals", "Performance", "Design systems"],
+      weaknesses: ["Limited backend Rust"],
+      portfolio: [{ type: "GitHub", label: "github.com/erodriguez", url: "https://github.com", status: "verified" }],
+      projects: [{ name: "Rendering engine", description: "12% faster than benchmark", tech: ["WebGL", "TypeScript"] }],
+      tags: ["React"],
+    });
+  }
+}
