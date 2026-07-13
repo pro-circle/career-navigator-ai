@@ -4,6 +4,8 @@ import { Bot, FileText, GraduationCap, LayoutDashboard, Link2, Mic, Route as Rou
 
 import { AppShell, type NavItem } from "@/components/AppShell";
 import { AiChatDock } from "@/components/AiChatDock";
+import { SettingsDrawer } from "@/components/settings/SettingsDrawer";
+
 
 const baseNav: NavItem[] = [
   { to: "/candidate", label: "Dashboard", icon: LayoutDashboard },
@@ -48,6 +50,8 @@ function CandidateLayout() {
         persona="Personal Trainee"
         suggestions={["Why is my ATS score 84?", "Should I apply to Netflix?", "What projects should I build next?"]}
       />
+      <SettingsDrawer />
     </>
+
   );
 }
