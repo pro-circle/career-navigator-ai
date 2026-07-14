@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { Settings2 } from "lucide-react";
+import { Bell, Settings2, User } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -11,84 +10,76 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { getSettings, saveSettings, useSettings, hasSupabaseConfig } from "@/lib/settings-store";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  getSettings,
+  saveSettings,
+  useSettings,
+  hasProfile,
+  type UserRole,
+} from "@/lib/settings-store";
 
-
+function initials(name: string) {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase() ?? "")
+      .join("") || "U"
+  );
+}
 
 export function SettingsDrawer({ floating = true }: { floating?: boolean } = {}) {
   const settings = useSettings();
   const [open, setOpen] = useState(false);
-  const [url, setUrl] = useState(settings.supabaseUrl);
-  const [key, setKey] = useState(settings.supabaseAnonKey);
-  const [groq, setGroq] = useState(settings.groqApiKey);
+  const [form, setForm] = useState(settings);
 
   useEffect(() => {
-    if (open) {
-      const s = getSettings();
-      setUrl(s.supabaseUrl);
-      setKey(s.supabaseAnonKey);
-      setGroq(s.groqApiKey);
-    }
+    if (open) setForm(getSettings());
   }, [open]);
+
+  const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
+    setForm((f) => ({ ...f, [k]: v }));
 
   const save = () => {
     saveSettings({
-      supabaseUrl: url.trim(),
-      supabaseAnonKey: key.trim(),
-      groqApiKey: groq.trim(),
+      fullName: form.fullName.trim(),
+      email: form.email.trim(),
+      jobTitle: form.jobTitle.trim(),
+      role: form.role,
+      timezone: form.timezone,
+      emailNotifications: form.emailNotifications,
+      productUpdates: form.productUpdates,
+      compactMode: form.compactMode,
     });
-    toast.success("Settings saved locally", {
-      description: "Keys are stored in your browser only.",
+    toast.success("Profile saved");
+  };
+
+  const reset = () => {
+    saveSettings({
+      fullName: "",
+      email: "",
+      jobTitle: "",
+      emailNotifications: true,
+      productUpdates: true,
+      compactMode: false,
     });
+    toast.message("Profile reset");
   };
 
-  const clear = () => {
-    saveSettings({ supabaseUrl: "", supabaseAnonKey: "", groqApiKey: "" });
-    setUrl("");
-    setKey("");
-    setGroq("");
-    toast.message("Cleared all keys");
-  };
-
-  const test = async () => {
-    if (!url || !key) {
-      toast.error("Enter both Supabase URL and anon key");
-      return;
-    }
-    try {
-      const res = await fetch(`${url.replace(/\/$/, "")}/rest/v1/`, {
-        headers: { apikey: key, Authorization: `Bearer ${key}` },
-      });
-      if (res.ok || res.status === 404) {
-        toast.success("Reachable", { description: `HTTP ${res.status}` });
-      } else {
-        toast.error("Connection failed", { description: `HTTP ${res.status}` });
-      }
-    } catch (e) {
-      toast.error("Network error", { description: String(e) });
-    }
-  };
-
-  const testAi = async () => {
-    if (!groq) {
-      toast.error("Enter a Groq API key");
-      return;
-    }
-    try {
-      const res = await fetch("https://api.groq.com/openai/v1/models", {
-        headers: { Authorization: `Bearer ${groq.trim()}` },
-      });
-      if (res.ok) toast.success("AI key OK");
-      else toast.error(`AI check failed: HTTP ${res.status}`);
-    } catch (e) {
-      toast.error("Network error", { description: String(e) });
-    }
-  };
-
-  const connected = hasSupabaseConfig(settings);
+  const complete = hasProfile(settings);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -101,7 +92,7 @@ export function SettingsDrawer({ floating = true }: { floating?: boolean } = {})
           >
             <Settings2 className="h-4 w-4" />
             <span className="mono-label">Settings</span>
-            {connected && <span className="h-1.5 w-1.5 rounded-full bg-brand-success" />}
+            {complete && <span className="h-1.5 w-1.5 rounded-full bg-brand-success" />}
           </button>
         ) : (
           <button
@@ -111,83 +102,176 @@ export function SettingsDrawer({ floating = true }: { floating?: boolean } = {})
           >
             <Settings2 className="h-4 w-4" />
             <span className="mono-label">Settings</span>
-            {connected && <span className="h-1.5 w-1.5 rounded-full bg-brand-success" />}
+            {complete && <span className="h-1.5 w-1.5 rounded-full bg-brand-success" />}
           </button>
         )}
       </SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-md bg-brand-surface border-brand-border overflow-y-auto chat-scroll">
+
+      <SheetContent
+        side="right"
+        className="w-full sm:max-w-md bg-brand-surface border-brand-border overflow-y-auto chat-scroll"
+      >
         <SheetHeader>
-          <SheetTitle>Workspace Settings</SheetTitle>
+          <SheetTitle className="flex items-center gap-2">
+            <Settings2 className="h-4 w-4 text-brand-accent" /> Account Settings
+          </SheetTitle>
           <SheetDescription>
-            Connect Supabase and your AI provider. Keys stay in your browser (localStorage).
+            Manage your profile, workspace role, and notification preferences.
           </SheetDescription>
         </SheetHeader>
 
+        {/* Identity card */}
+        <div className="mt-6 flex items-center gap-3 rounded-xl border border-brand-border bg-brand-bg p-4">
+          <div className="h-12 w-12 rounded-full bg-brand-accent/15 border border-brand-accent/40 text-brand-accent flex items-center justify-center font-semibold">
+            {initials(form.fullName || "User")}
+          </div>
+          <div className="min-w-0">
+            <div className="text-sm font-medium truncate">
+              {form.fullName || "Set your name"}
+            </div>
+            <div className="text-xs text-muted-foreground truncate">
+              {form.email || "Add an email"}
+            </div>
+            <div className="mono-label mt-1 !text-[10px]">
+              {form.role === "recruiter" ? "RECRUITER" : "CANDIDATE"}
+            </div>
+          </div>
+        </div>
+
         <div className="mt-6 space-y-6 px-1">
+          {/* Profile */}
           <section className="space-y-3">
-            <div className="mono-label">Supabase</div>
-            <div className="space-y-2">
-              <Label htmlFor="sb-url">Project URL</Label>
-              <Input
-                id="sb-url"
-                placeholder="https://xxxxx.supabase.co"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                className="font-mono text-xs"
-              />
+            <div className="mono-label flex items-center gap-2">
+              <User className="h-3 w-3" /> Profile
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="sb-key">Anon / Publishable Key</Label>
-              <Input
-                id="sb-key"
-                placeholder="eyJhbGciOi..."
-                value={key}
-                onChange={(e) => setKey(e.target.value)}
-                type="password"
-                className="font-mono text-xs"
-              />
-            </div>
-            <div className="flex gap-2 pt-2">
-              <Button size="sm" onClick={save}>Save</Button>
-              <Button size="sm" variant="outline" onClick={test}>Test connection</Button>
-              <Button size="sm" variant="ghost" onClick={clear} className="ml-auto">
-                Clear
-              </Button>
+            <div className="grid grid-cols-1 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="p-name">Full name</Label>
+                <Input
+                  id="p-name"
+                  value={form.fullName}
+                  onChange={(e) => set("fullName", e.target.value)}
+                  placeholder="Alex Morgan"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="p-email">Email</Label>
+                <Input
+                  id="p-email"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => set("email", e.target.value)}
+                  placeholder="alex@company.com"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="p-title">Job title</Label>
+                <Input
+                  id="p-title"
+                  value={form.jobTitle}
+                  onChange={(e) => set("jobTitle", e.target.value)}
+                  placeholder={
+                    form.role === "recruiter"
+                      ? "Senior Talent Partner"
+                      : "Senior Frontend Engineer"
+                  }
+                />
+              </div>
             </div>
           </section>
 
           <Separator className="bg-brand-border" />
 
+          {/* Workspace */}
           <section className="space-y-3">
-            <div className="mono-label">Agentic AI</div>
-            <div className="space-y-2">
-              <Label htmlFor="ai-key">Groq API Key</Label>
-              <Input
-                id="ai-key"
-                placeholder="gsk_..."
-                value={groq}
-                onChange={(e) => setGroq(e.target.value)}
-                type="password"
-                className="font-mono text-xs"
-              />
-              <p className="text-[11px] text-muted-foreground">
-                Get a free key at <code className="font-mono">console.groq.com</code>. Without it, AI runs in mock mode.
-              </p>
-            </div>
-            <div className="flex gap-2 pt-2">
-              <Button size="sm" onClick={save}>Save</Button>
-              <Button size="sm" variant="outline" onClick={testAi}>Test AI</Button>
-            </div>
-            <div className="rounded-lg border border-brand-border bg-brand-bg p-3 text-[11px] text-muted-foreground flex items-center justify-between mt-2">
-              <span>Status</span>
-              <span className={settings.groqApiKey ? "font-mono text-brand-success" : "font-mono text-brand-warning"}>
-                {settings.groqApiKey ? "LIVE" : "MOCKED"}
-              </span>
+            <div className="mono-label">Workspace</div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label>Role</Label>
+                <Select
+                  value={form.role}
+                  onValueChange={(v) => set("role", v as UserRole)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="candidate">Candidate</SelectItem>
+                    <SelectItem value="recruiter">Recruiter</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="p-tz">Timezone</Label>
+                <Input
+                  id="p-tz"
+                  value={form.timezone}
+                  onChange={(e) => set("timezone", e.target.value)}
+                  className="font-mono text-xs"
+                />
+              </div>
             </div>
           </section>
+
+          <Separator className="bg-brand-border" />
+
+          {/* Notifications */}
+          <section className="space-y-3">
+            <div className="mono-label flex items-center gap-2">
+              <Bell className="h-3 w-3" /> Notifications
+            </div>
+            <ToggleRow
+              label="Email notifications"
+              hint="Interview invites, application updates, and shortlists."
+              checked={form.emailNotifications}
+              onChange={(v) => set("emailNotifications", v)}
+            />
+            <ToggleRow
+              label="Product updates"
+              hint="Occasional emails about new features."
+              checked={form.productUpdates}
+              onChange={(v) => set("productUpdates", v)}
+            />
+            <ToggleRow
+              label="Compact mode"
+              hint="Tighter spacing across tables and cards."
+              checked={form.compactMode}
+              onChange={(v) => set("compactMode", v)}
+            />
+          </section>
+
+          <div className="flex gap-2 pt-2">
+            <Button size="sm" onClick={save}>
+              Save changes
+            </Button>
+            <Button size="sm" variant="ghost" onClick={reset} className="ml-auto">
+              Reset
+            </Button>
+          </div>
         </div>
       </SheetContent>
     </Sheet>
   );
 }
 
+function ToggleRow({
+  label,
+  hint,
+  checked,
+  onChange,
+}: {
+  label: string;
+  hint?: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-start justify-between gap-4 rounded-lg border border-brand-border bg-brand-bg p-3">
+      <div className="min-w-0">
+        <div className="text-sm">{label}</div>
+        {hint && <div className="text-[11px] text-muted-foreground mt-0.5">{hint}</div>}
+      </div>
+      <Switch checked={checked} onCheckedChange={onChange} />
+    </div>
+  );
+}

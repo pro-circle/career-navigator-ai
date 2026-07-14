@@ -1,16 +1,11 @@
-// Agentic AI helpers. Every function calls a real LLM (Groq via
-// ai-client). If the user has not configured a Groq API key in Settings,
-// we throw a friendly error so the UI can surface a "Configure AI" toast.
+// Agentic AI helpers. Every function calls a real LLM through the server
+// (/api/ai/*), which uses GROQ_API_KEY from .env. Users never configure keys.
 // The filename is kept as mock-ai.ts for backwards compatibility with
 // existing imports; the module itself has no mocks left.
-import { streamCompletion, complete, completeJson, hasAiKey } from "./ai-client";
+import { streamCompletion, complete, completeJson } from "./ai-client";
 
 function requireKey() {
-  if (!hasAiKey()) {
-    throw new Error(
-      "Agentic AI is not configured. Open Settings → Agentic AI and paste a Groq API key.",
-    );
-  }
+  /* no-op: AI is always enabled server-side */
 }
 
 const SYS_RECRUIT =
