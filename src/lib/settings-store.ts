@@ -1,13 +1,30 @@
 import { useSyncExternalStore } from "react";
 
+export type UserRole = "recruiter" | "candidate";
+
 export type AppSettings = {
-  supabaseUrl: string;
-  supabaseAnonKey: string;
-  groqApiKey: string;
+  fullName: string;
+  email: string;
+  jobTitle: string;
+  role: UserRole;
+  timezone: string;
+  emailNotifications: boolean;
+  productUpdates: boolean;
+  compactMode: boolean;
 };
 
-const KEY = "aihire.settings.v1";
-const EMPTY: AppSettings = { supabaseUrl: "", supabaseAnonKey: "", groqApiKey: "" };
+const KEY = "aihire.profile.v2";
+const EMPTY: AppSettings = {
+  fullName: "",
+  email: "",
+  jobTitle: "",
+  role: "candidate",
+  timezone:
+    typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC",
+  emailNotifications: true,
+  productUpdates: true,
+  compactMode: false,
+};
 
 const listeners = new Set<() => void>();
 let cache: AppSettings = EMPTY;
@@ -54,11 +71,11 @@ export function useSettings(): AppSettings {
   return useSyncExternalStore(subscribe, () => cache, getServerSnapshot);
 }
 
-// Hydrate cache on client
 if (typeof window !== "undefined") {
   cache = read();
 }
 
-export function hasSupabaseConfig(s: AppSettings = cache) {
-  return Boolean(s.supabaseUrl && s.supabaseAnonKey);
+/** True when the user has filled in a basic profile. */
+export function hasProfile(s: AppSettings = cache) {
+  return Boolean(s.fullName && s.email);
 }

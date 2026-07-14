@@ -1,22 +1,20 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { getSettings } from "./settings-store";
 
-let cached: { url: string; key: string; client: SupabaseClient } | null = null;
+const URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const ANON = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-/** Returns a browser-managed Supabase client using keys stored in localStorage. */
+let cached: SupabaseClient | null = null;
+
+/** Returns a Supabase client configured from .env (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY). */
 export function getSupabase(): SupabaseClient | null {
-  const { supabaseUrl, supabaseAnonKey } = getSettings();
-  if (!supabaseUrl || !supabaseAnonKey) return null;
-  if (cached && cached.url === supabaseUrl && cached.key === supabaseAnonKey) {
-    return cached.client;
-  }
-  const client = createClient(supabaseUrl, supabaseAnonKey, {
+  if (!URL || !ANON) return null;
+  if (cached) return cached;
+  cached = createClient(URL, ANON, {
     auth: { persistSession: true, storageKey: "aihire.sb.auth" },
   });
-  cached = { url: supabaseUrl, key: supabaseAnonKey, client };
-  return client;
+  return cached;
 }
 
 export function hasSupabase(): boolean {
-  return getSupabase() !== null;
+  return Boolean(URL && ANON);
 }
