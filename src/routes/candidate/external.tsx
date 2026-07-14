@@ -31,11 +31,17 @@ function ExternalPage() {
       return;
     }
     setBusy(true);
-    const r = await mockAnalyzeExternalJob(url);
-    setRes(r);
-    setBusy(false);
-    toast.success("Analysis complete");
+    try {
+      const r = await mockAnalyzeExternalJob(url);
+      setRes(r);
+      toast.success("Analysis complete");
+    } catch (e) {
+      toast.error("Agentic AI unavailable", { description: String((e as Error).message ?? e) });
+    } finally {
+      setBusy(false);
+    }
   };
+
 
   return (
     <div>
