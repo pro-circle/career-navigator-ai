@@ -29,6 +29,8 @@ import { Route as CandidateAssistantRouteImport } from './routes/candidate/assis
 import { Route as RecruiterJobsNewRouteImport } from './routes/recruiter/jobs.new'
 import { Route as RecruiterJobsJobIdRouteImport } from './routes/recruiter/jobs.$jobId'
 import { Route as RecruiterCandidatesIdRouteImport } from './routes/recruiter/candidates.$id'
+import { Route as ApiAiJsonRouteImport } from './routes/api/ai/json'
+import { Route as ApiAiChatRouteImport } from './routes/api/ai/chat'
 
 const RecruiterRouteRoute = RecruiterRouteRouteImport.update({
   id: '/recruiter',
@@ -130,6 +132,16 @@ const RecruiterCandidatesIdRoute = RecruiterCandidatesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => RecruiterCandidatesRoute,
 } as any)
+const ApiAiJsonRoute = ApiAiJsonRouteImport.update({
+  id: '/api/ai/json',
+  path: '/api/ai/json',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAiChatRoute = ApiAiChatRouteImport.update({
+  id: '/api/ai/chat',
+  path: '/api/ai/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -149,6 +161,8 @@ export interface FileRoutesByFullPath {
   '/recruiter/jobs': typeof RecruiterJobsRouteWithChildren
   '/candidate/': typeof CandidateIndexRoute
   '/recruiter/': typeof RecruiterIndexRoute
+  '/api/ai/chat': typeof ApiAiChatRoute
+  '/api/ai/json': typeof ApiAiJsonRoute
   '/recruiter/candidates/$id': typeof RecruiterCandidatesIdRoute
   '/recruiter/jobs/$jobId': typeof RecruiterJobsJobIdRoute
   '/recruiter/jobs/new': typeof RecruiterJobsNewRoute
@@ -169,6 +183,8 @@ export interface FileRoutesByTo {
   '/recruiter/jobs': typeof RecruiterJobsRouteWithChildren
   '/candidate': typeof CandidateIndexRoute
   '/recruiter': typeof RecruiterIndexRoute
+  '/api/ai/chat': typeof ApiAiChatRoute
+  '/api/ai/json': typeof ApiAiJsonRoute
   '/recruiter/candidates/$id': typeof RecruiterCandidatesIdRoute
   '/recruiter/jobs/$jobId': typeof RecruiterJobsJobIdRoute
   '/recruiter/jobs/new': typeof RecruiterJobsNewRoute
@@ -192,6 +208,8 @@ export interface FileRoutesById {
   '/recruiter/jobs': typeof RecruiterJobsRouteWithChildren
   '/candidate/': typeof CandidateIndexRoute
   '/recruiter/': typeof RecruiterIndexRoute
+  '/api/ai/chat': typeof ApiAiChatRoute
+  '/api/ai/json': typeof ApiAiJsonRoute
   '/recruiter/candidates/$id': typeof RecruiterCandidatesIdRoute
   '/recruiter/jobs/$jobId': typeof RecruiterJobsJobIdRoute
   '/recruiter/jobs/new': typeof RecruiterJobsNewRoute
@@ -216,6 +234,8 @@ export interface FileRouteTypes {
     | '/recruiter/jobs'
     | '/candidate/'
     | '/recruiter/'
+    | '/api/ai/chat'
+    | '/api/ai/json'
     | '/recruiter/candidates/$id'
     | '/recruiter/jobs/$jobId'
     | '/recruiter/jobs/new'
@@ -236,6 +256,8 @@ export interface FileRouteTypes {
     | '/recruiter/jobs'
     | '/candidate'
     | '/recruiter'
+    | '/api/ai/chat'
+    | '/api/ai/json'
     | '/recruiter/candidates/$id'
     | '/recruiter/jobs/$jobId'
     | '/recruiter/jobs/new'
@@ -258,6 +280,8 @@ export interface FileRouteTypes {
     | '/recruiter/jobs'
     | '/candidate/'
     | '/recruiter/'
+    | '/api/ai/chat'
+    | '/api/ai/json'
     | '/recruiter/candidates/$id'
     | '/recruiter/jobs/$jobId'
     | '/recruiter/jobs/new'
@@ -267,6 +291,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CandidateRouteRoute: typeof CandidateRouteRouteWithChildren
   RecruiterRouteRoute: typeof RecruiterRouteRouteWithChildren
+  ApiAiChatRoute: typeof ApiAiChatRoute
+  ApiAiJsonRoute: typeof ApiAiJsonRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -411,6 +437,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecruiterCandidatesIdRouteImport
       parentRoute: typeof RecruiterCandidatesRoute
     }
+    '/api/ai/json': {
+      id: '/api/ai/json'
+      path: '/api/ai/json'
+      fullPath: '/api/ai/json'
+      preLoaderRoute: typeof ApiAiJsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai/chat': {
+      id: '/api/ai/chat'
+      path: '/api/ai/chat'
+      fullPath: '/api/ai/chat'
+      preLoaderRoute: typeof ApiAiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -491,6 +531,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CandidateRouteRoute: CandidateRouteRouteWithChildren,
   RecruiterRouteRoute: RecruiterRouteRouteWithChildren,
+  ApiAiChatRoute: ApiAiChatRoute,
+  ApiAiJsonRoute: ApiAiJsonRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
