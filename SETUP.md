@@ -1,62 +1,62 @@
 # AIHire Pro — Getting Started
 
-Runs 100% in the browser. No cloud backend is required to try the app; connect Supabase + Groq (both keys pasted into Settings) to persist data and get live agentic AI.
+The app is a TanStack Start SSR site. AI calls are proxied through the server, so users never see or configure API keys — you (the operator) put the Groq key in `.env`.
 
-## 1. Run locally
+## 1. Configure environment
+
+Copy the example file and fill in the key(s):
+
+```bash
+cp .env.example .env
+```
+
+`.env` values:
+
+| Var | Required | Where it runs | Notes |
+| --- | --- | --- | --- |
+| `GROQ_API_KEY` | **Yes** for AI features | Server only | Free key at <https://console.groq.com>. Never shipped to the browser. |
+| `VITE_SUPABASE_URL` | Optional | Browser | Anon-only project URL. |
+| `VITE_SUPABASE_ANON_KEY` | Optional | Browser | Safe to expose (RLS-scoped). |
+
+## 2. Run locally
 
 ```bash
 bun install
 bun run dev
 ```
 
-Open the URL Vite prints (usually `http://localhost:8080`). The app boots empty — you'll see empty states everywhere until you create data.
+Open the URL Vite prints (usually `http://localhost:8080`). Every AI-powered surface (chat docks, Resume Studio, Mock Interview, external job analyzer, Prep Roadmap) hits `/api/ai/*` on the server, which uses `GROQ_API_KEY`. If the key is missing the endpoints return **503** and the UI shows a "Server AI not configured" toast — configure `.env` and restart `bun run dev`.
 
-## 2. Add the AI key (agentic responses)
+## 3. Persist data (optional)
 
-1. Get a **free** Groq API key at <https://console.groq.com>.
-2. In the running app, click the **Settings** button (bottom-right in the recruiter/candidate workspace).
-3. Paste the key under **Agentic AI → Groq API Key**, click **Save**, then **Test AI**.
-4. Status flips to `LIVE`. All chat, resume analysis, interview questions and cover-letter generation now stream real completions.
-
-Without a key the app stays usable in **MOCKED** mode (structured placeholder responses).
-
-## 3. Persist data to Supabase (optional)
-
-Data is kept in `localStorage` by default. To persist across devices:
+Data is kept in `localStorage` by default. To sync across devices:
 
 1. Create a free project at <https://supabase.com>.
-2. Open **SQL Editor → New query**, paste the contents of [`supabase/schema.sql`](supabase/schema.sql), and **Run**.
-3. Copy your **Project URL** and **anon / publishable key** from **Project Settings → API**.
-4. In AIHire Pro, open **Settings**, paste both under **Supabase**, click **Save**, then **Test connection** (expect HTTP 200/404).
+2. Open **SQL Editor → New query**, paste [`supabase/schema.sql`](supabase/schema.sql), and **Run**.
+3. Copy your **Project URL** and **anon key** from **Project Settings → API** into `.env` (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`).
+4. Restart `bun run dev`. Every job/candidate is upserted to Supabase; refresh to reload.
 
-From now on every job or candidate you create is upserted to your Supabase tables. The seed policy is fully open for local demos — tighten RLS before shipping publicly.
+Tighten the seed RLS in `supabase/schema.sql` before shipping publicly.
 
-## 4. Feed real data
+## 4. Feed data
 
-Two ways:
+- `Recruiter → Jobs → New Job` — full form (title, description, required skills, deadline…).
+- Open a job → **Applicants** tab to review, shortlist, change stage.
+- `Candidate → Profile` — edit profile, hyperlinks, skills.
+- Empty **Jobs** page → **Load demo data** to seed two jobs and one candidate.
 
-**A. Through the UI**
-- `Recruiter → Jobs → New Job` — full form for a role (title, description, required skills, deadline…).
-- Open a job → **Applicants** tab to review, shortlist, and change stage.
-- `Candidate → Profile` — edit your own profile, hyperlinks, and skills.
+## 5. Settings
 
-**B. Seed sample data**
-- On an empty **Jobs** page, click **Load demo data** to insert two jobs + one candidate so you can explore all screens.
+The in-app **Settings** panel now manages the signed-in user's profile only: full name, email, job title, role, timezone, notifications, compact mode. No API keys are exposed to end-users.
 
-**C. Bulk import (Supabase)**
-- Any row you `INSERT` directly into `public.jobs` / `public.candidates` shows up on the next reload.
-- Use **Reload from Supabase** in Settings (or refresh the browser) to sync.
-
-## 5. Deploy
-
-For local-only exploration you're done. To ship:
+## 6. Deploy
 
 ```bash
 bun run build
-bun run start   # serves the production build
+bun run start
 ```
 
-Or deploy the TanStack Start output to any Node/Cloudflare-compatible host.
+Deploy the TanStack Start output (Cloudflare Worker target by default) to any supported host. Set `GROQ_API_KEY` and optional `VITE_SUPABASE_*` in the host's env config — do not commit `.env`.
 
 ---
 
@@ -64,7 +64,5 @@ Or deploy the TanStack Start output to any Node/Cloudflare-compatible host.
 - **Recruiter Intelligence** and **Personal Trainee** chat docks (streaming).
 - **Resume Studio** — ATS analysis, cover-letter, translator.
 - **Mock Interview** — question generation and answer evaluation.
+- **External Job Analyzer** — role-fit + prep plan.
 - **Prep Roadmap** — generated after interview completion.
-
-### Environment variables
-None required. All keys live in browser `localStorage` under `aihire.settings.v1`. Clear them any time from Settings → Clear.
