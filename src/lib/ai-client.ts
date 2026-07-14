@@ -9,14 +9,17 @@ export function hasAiKey() {
 
 type Msg = { role: "system" | "user" | "assistant"; content: string };
 
-/** Call the AI (Groq OpenAI-compatible) with streaming. Falls back to a mock stream if no key. */
+/** Call the AI (Groq OpenAI-compatible) with streaming. Emits a config-hint token when no key. */
 export async function streamCompletion(
   messages: Msg[],
   onToken: (chunk: string) => void,
   opts: { temperature?: number; model?: string } = {},
 ) {
   const key = getSettings().groqApiKey;
-  if (!key) return mockStream(messages, onToken);
+  if (!key) {
+    onToken("[Agentic AI not configured] Open Settings → Agentic AI and paste a Groq API key to enable live responses.");
+    return;
+  }
 
   try {
     const res = await fetch(GROQ_URL, {
@@ -99,15 +102,3 @@ export async function completeJson<T = unknown>(
   }
 }
 
-async function mockStream(messages: Msg[], onToken: (chunk: string) => void) {
-  const prompt = messages[messages.length - 1]?.content ?? "";
-  const full =
-    "[Mock mode — add a Groq API key in Settings to enable live AI]\n\n" +
-    "Based on your prompt, here is a structured take: (1) lead with measurable impact, (2) cite one specific project with numbers, (3) close with a clarifying question. You asked: \"" +
-    prompt.slice(0, 200) +
-    "\".";
-  for (const t of full.split(/(\s+)/)) {
-    await new Promise((r) => setTimeout(r, 20 + Math.random() * 30));
-    onToken(t);
-  }
-}
