@@ -45,35 +45,56 @@ function ResumePage() {
 
   const onFile = async (f: File) => {
     setBusy(true);
-    const res = await mockParseResume(f.name);
-    setParsed(res);
-    setBusy(false);
-    toast.success("Resume parsed", { description: `${res.skills.length} skills · ${res.hyperlinks.length} links detected` });
+    try {
+      const res = await mockParseResume(f.name);
+      setParsed(res);
+      toast.success("Resume parsed", { description: `${res.skills.length} skills · ${res.hyperlinks.length} links detected` });
+    } catch (e) {
+      toast.error("Parse failed", { description: String((e as Error).message ?? e) });
+    } finally {
+      setBusy(false);
+    }
   };
 
   const build = async () => {
     setBusy(true);
-    const r = await mockBuildResume(role, candidateProfile.name);
-    setBuilt(r);
-    setBusy(false);
-    toast.success("ATS-friendly resume drafted", { description: `Score ${r.ats}/100 for ${role}` });
+    try {
+      const r = await mockBuildResume(role, candidateProfile.name || "Your Name");
+      setBuilt(r);
+      toast.success("ATS-friendly resume drafted", { description: `Score ${r.ats}/100 for ${role}` });
+    } catch (e) {
+      toast.error("Build failed", { description: String((e as Error).message ?? e) });
+    } finally {
+      setBusy(false);
+    }
   };
 
   const genCover = async () => {
     setBusy(true);
-    const c = await mockCoverLetter(coverRole, coverCompany);
-    setCover(c);
-    setBusy(false);
-    toast.success("Cover letter drafted");
+    try {
+      const c = await mockCoverLetter(coverRole, coverCompany);
+      setCover(c);
+      toast.success("Cover letter drafted");
+    } catch (e) {
+      toast.error("Draft failed", { description: String((e as Error).message ?? e) });
+    } finally {
+      setBusy(false);
+    }
   };
 
   const translate = async () => {
     setBusy(true);
-    const t = await mockTranslateResume(lang);
-    setTranslated(t);
-    setBusy(false);
-    toast.success(`Translated to ${lang}`);
+    try {
+      const t = await mockTranslateResume(lang);
+      setTranslated(t);
+      toast.success(`Translated to ${lang}`);
+    } catch (e) {
+      toast.error("Translation failed", { description: String((e as Error).message ?? e) });
+    } finally {
+      setBusy(false);
+    }
   };
+
 
   return (
     <div>

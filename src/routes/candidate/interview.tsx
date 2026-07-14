@@ -65,21 +65,31 @@ function InterviewPage() {
   };
 
   const startCoding = async () => {
-    const qs = await mockCodingQuestions(difficulty, company);
-    setCoding(qs);
-    setCodingIdx(0);
-    setCode(qs[0].starter);
-    setCodeEval(null);
-    setPhase("coding");
-    toast.message("Coding round", { description: `${difficulty} · tuned to ${company} interview history.` });
+    try {
+      const qs = await mockCodingQuestions(difficulty, company);
+      if (!qs || qs.length === 0) throw new Error("No questions returned");
+      setCoding(qs);
+      setCodingIdx(0);
+      setCode(qs[0].starter);
+      setCodeEval(null);
+      setPhase("coding");
+      toast.message("Coding round", { description: `${difficulty} · tuned to ${company} interview history.` });
+    } catch (e) {
+      toast.error("Agentic AI unavailable", { description: String((e as Error).message ?? e) });
+    }
   };
 
   const runTests = async () => {
     setCodingBusy(true);
-    const res = await mockEvaluateCode(code);
-    setCodeEval(res);
-    setCodingBusy(false);
-    toast.success(`${res.passed}/${res.total} tests passed`);
+    try {
+      const res = await mockEvaluateCode(code);
+      setCodeEval(res);
+      toast.success(`${res.passed}/${res.total} tests passed`);
+    } catch (e) {
+      toast.error("Evaluation failed", { description: String((e as Error).message ?? e) });
+    } finally {
+      setCodingBusy(false);
+    }
   };
 
   const nextCoding = () => {
@@ -94,15 +104,20 @@ function InterviewPage() {
   };
 
   const finish = async () => {
-    const r = await mockEvaluateInterview();
-    setReport(r);
-    setPhase("report");
     try {
-      localStorage.setItem("interview_completed", "1");
-    } catch {
-      /* ignore */
+      const r = await mockEvaluateInterview();
+      setReport(r);
+      setPhase("report");
+      try {
+        localStorage.setItem("interview_completed", "1");
+      } catch {
+        /* ignore */
+      }
+    } catch (e) {
+      toast.error("Could not score interview", { description: String((e as Error).message ?? e) });
     }
   };
+
 
   const toggleMic = () => {
     setRecording((r) => !r);
