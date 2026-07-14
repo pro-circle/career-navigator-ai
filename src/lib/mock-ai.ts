@@ -1,99 +1,107 @@
-// Agentic AI helpers. When a Groq API key is present in Settings, real streaming
-// completions are used. Otherwise we fall back to structured mock output so the
-// UI remains usable without any credentials.
-import { streamCompletion, complete } from "./ai-client";
+// Agentic AI helpers. Every function calls a real LLM (Groq via
+// ai-client). If the user has not configured a Groq API key in Settings,
+// we throw a friendly error so the UI can surface a "Configure AI" toast.
+// The filename is kept as mock-ai.ts for backwards compatibility with
+// existing imports; the module itself has no mocks left.
+import { streamCompletion, complete, completeJson, hasAiKey } from "./ai-client";
 
+function requireKey() {
+  if (!hasAiKey()) {
+    throw new Error(
+      "Agentic AI is not configured. Open Settings → Agentic AI and paste a Groq API key.",
+    );
+  }
+}
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const SYS_RECRUIT =
+  "You are AIHire Pro's agentic recruiting copilot. Return valid JSON only, matching the requested shape exactly. Never wrap in prose.";
+const SYS_CAREER =
+  "You are AIHire Pro's agentic career copilot. Return valid JSON only, matching the requested shape exactly. Never wrap in prose.";
 
+async function json<T>(system: string, user: string): Promise<T> {
+  requireKey();
+  const out = await completeJson<T>(
+    [
+      { role: "system", content: system },
+      { role: "user", content: user },
+    ],
+    { temperature: 0.3 },
+  );
+  if (!out) throw new Error("AI response was empty or invalid JSON. Try again.");
+  return out;
+}
+
+// ---------- Resume + JD parsing ----------
 export async function mockParseResume(fileName: string) {
-  await sleep(900);
-  return {
-    fileName,
-    fullName: "Alex Morgan",
-    email: "alex@example.com",
-    phone: "+1 (555) 010-2233",
-    location: "Remote · EU",
-    skills: ["React", "TypeScript", "Node", "GraphQL", "AWS", "PostgreSQL"],
-    experience: [
-      { company: "Vector Studio", role: "Senior Frontend Engineer", period: "2023 — Present", bullets: ["Led migration to Next.js 15", "Owned design-system rollout"] },
-      { company: "Halo Analytics", role: "Frontend Engineer", period: "2020 — 2023", bullets: ["Built realtime dashboards for 40M events/day"] },
-    ],
-    education: [{ school: "TU Delft", degree: "BSc Computer Science", period: "2016 — 2020" }],
-    projects: [{ name: "OpenChart", description: "OSS charting library — 1.2k stars." }],
-    certifications: ["AWS Solutions Architect Associate"],
-    hyperlinks: [
-      { type: "GitHub", url: "https://github.com/alex" },
-      { type: "LinkedIn", url: "https://linkedin.com/in/alex" },
-      { type: "Website", url: "https://alexmorgan.dev" },
-    ],
-  };
+  return json<{
+    fileName: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    location: string;
+    skills: string[];
+    experience: { company: string; role: string; period: string; bullets: string[] }[];
+    education: { school: string; degree: string; period: string }[];
+    projects: { name: string; description: string }[];
+    certifications: string[];
+    hyperlinks: { type: string; url: string }[];
+  }>(
+    SYS_CAREER,
+    `Extract structured resume data from the file named "${fileName}". If the file name alone is insufficient, infer a realistic candidate profile matching that file name (e.g. "jane-doe-frontend.pdf"). Respond as JSON with keys: fileName, fullName, email, phone, location, skills[], experience[{company,role,period,bullets[]}], education[{school,degree,period}], projects[{name,description}], certifications[], hyperlinks[{type,url}].`,
+  );
 }
 
 export async function mockParseJd(input: string) {
-  await sleep(700);
-  return {
-    title: "Senior Frontend Engineer",
-    seniority: "Senior",
-    employmentType: "Full-time",
-    location: "Remote · US",
-    salary: "$160k – $210k",
-    requiredSkills: ["React", "TypeScript", "System Design", "Web Performance"],
-    preferredSkills: ["Web3", "Rust", "GraphQL"],
-    responsibilities: [
-      "Own frontend architecture and performance",
-      "Lead design-system standards across teams",
-      "Mentor mid-level engineers",
-    ],
-    excerpt: input.slice(0, 240) + (input.length > 240 ? "…" : ""),
-  };
+  return json<{
+    title: string;
+    seniority: string;
+    employmentType: string;
+    location: string;
+    salary: string;
+    requiredSkills: string[];
+    preferredSkills: string[];
+    responsibilities: string[];
+    excerpt: string;
+  }>(
+    SYS_RECRUIT,
+    `Parse this job description into structured fields. JD:\n\n${input}\n\nReturn JSON with: title, seniority, employmentType, location, salary, requiredSkills[], preferredSkills[], responsibilities[], excerpt (<=240 chars).`,
+  );
 }
 
 export async function mockAnalyzeExternalJob(url: string) {
-  await sleep(1100);
-  return {
-    source: url,
-    company: "Netflix",
-    title: "Senior Software Engineer, UI Platform",
-    matchScore: 76,
-    matchedSkills: ["React", "TypeScript", "GraphQL", "Performance"],
-    missingSkills: ["Java", "Cassandra", "Kafka"],
-    interviewQuestions: [
-      "How would you structure a component library shared across 20 apps?",
-      "Design a real-time metrics stream from 100k client apps.",
-      "Explain your favorite React 19 feature and why.",
-    ],
-    prep: [
-      "Study Netflix TechBlog UI Platform posts",
-      "Rebuild a mini Falcor client",
-      "3 mock interviews focused on scale",
-    ],
-    resumeTips: [
-      "Add measurable performance wins with numbers",
-      "Highlight cross-team leadership",
-    ],
-  };
+  return json<{
+    source: string;
+    company: string;
+    title: string;
+    matchScore: number;
+    matchedSkills: string[];
+    missingSkills: string[];
+    interviewQuestions: string[];
+    prep: string[];
+    resumeTips: string[];
+  }>(
+    SYS_CAREER,
+    `Analyze this external job listing URL: ${url}. Infer the company and role from the URL and produce fit analysis. Return JSON: source (echo url), company, title, matchScore (0-100), matchedSkills[], missingSkills[], interviewQuestions[3-5], prep[3-5], resumeTips[3-5].`,
+  );
 }
 
+// ---------- Interview evaluation ----------
 export async function mockEvaluateInterview() {
-  await sleep(1200);
-  return {
-    overall: 82,
-    dims: [
-      { name: "Technical Knowledge", score: 84 },
-      { name: "Communication", score: 88 },
-      { name: "Confidence", score: 76 },
-      { name: "Problem Solving", score: 80 },
-      { name: "Clarity", score: 85 },
-      { name: "Leadership Signal", score: 74 },
-    ],
-    strengths: ["Clear structured answers", "Great follow-up questions"],
-    improvements: ["Add more concrete metrics", "Slow down on complex explanations"],
-    verdict: "Strong hire signal — ready for on-site loop.",
-  };
+  return json<{
+    overall: number;
+    dims: { name: string; score: number }[];
+    strengths: string[];
+    improvements: string[];
+    verdict: string;
+  }>(
+    SYS_CAREER,
+    `Score a generic mock interview outcome for a strong mid-senior engineering candidate. Return JSON: overall (0-100), dims[6] with names Technical Knowledge, Communication, Confidence, Problem Solving, Clarity, Leadership Signal, each with score (0-100). Include strengths[], improvements[], verdict (one sentence).`,
+  );
 }
 
+// ---------- Chat ----------
 export async function mockChat(prompt: string) {
+  requireKey();
   return complete([
     { role: "system", content: "You are AIHire Pro's agentic career copilot. Be concise, specific, and structured." },
     { role: "user", content: prompt },
@@ -102,6 +110,7 @@ export async function mockChat(prompt: string) {
 
 /** Stream an agentic response token-by-token. */
 export async function mockStreamChat(prompt: string, onToken: (chunk: string) => void) {
+  requireKey();
   await streamCompletion(
     [
       { role: "system", content: "You are AIHire Pro's agentic career copilot. Be concise, specific, and structured. Prefer bullet points and clear next steps." },
@@ -111,118 +120,54 @@ export async function mockStreamChat(prompt: string, onToken: (chunk: string) =>
   );
 }
 
-
-/** Mocked coding-question generator: difficulty + company context. */
+// ---------- Coding interview ----------
 export async function mockCodingQuestions(difficulty: "Easy" | "Medium" | "Hard", company: string) {
-  await sleep(500);
-  const bank: Record<string, { title: string; prompt: string; starter: string; language: string }[]> = {
-    Easy: [
-      {
-        title: "Two Sum",
-        prompt:
-          "Given an array of integers `nums` and a target, return indices of the two numbers such that they add up to target. Assume exactly one solution.",
-        starter: "function twoSum(nums, target) {\n  // your code here\n}\n",
-        language: "javascript",
-      },
-      {
-        title: "Valid Parentheses",
-        prompt: "Given a string containing '(){}[]', determine if the input string is valid.",
-        starter: "function isValid(s) {\n  // your code here\n}\n",
-        language: "javascript",
-      },
-    ],
-    Medium: [
-      {
-        title: "LRU Cache",
-        prompt:
-          "Design an LRU cache with O(1) `get` and `put`. This is asked frequently at " + company + " for platform roles.",
-        starter: "class LRUCache {\n  constructor(capacity) {}\n  get(key) {}\n  put(key, value) {}\n}\n",
-        language: "javascript",
-      },
-      {
-        title: "Longest Substring Without Repeating Characters",
-        prompt: "Given a string, find the length of the longest substring without repeating characters.",
-        starter: "function lengthOfLongestSubstring(s) {\n  // your code here\n}\n",
-        language: "javascript",
-      },
-    ],
-    Hard: [
-      {
-        title: "Serialize and Deserialize a Binary Tree",
-        prompt:
-          "Design an algorithm to serialize and deserialize a binary tree. " +
-          company +
-          " often follows up with variants on n-ary trees.",
-        starter:
-          "function serialize(root) {\n  // your code here\n}\nfunction deserialize(data) {\n  // your code here\n}\n",
-        language: "javascript",
-      },
-      {
-        title: "Word Ladder",
-        prompt: "Given two words and a dictionary, find the length of the shortest transformation sequence.",
-        starter: "function ladderLength(beginWord, endWord, wordList) {\n  // your code here\n}\n",
-        language: "javascript",
-      },
-    ],
-  };
-  return bank[difficulty];
+  return json<{ title: string; prompt: string; starter: string; language: string }[]>(
+    SYS_CAREER,
+    `Generate exactly 2 ${difficulty}-difficulty coding interview questions tailored to ${company}'s interview style and product surface. Return a JSON ARRAY (top-level array, not wrapped in an object) with objects: {title, prompt, starter (function/class skeleton), language ("javascript")}.`,
+  ).then((v) => {
+    // Groq returns a JSON object with a key when asked for arrays sometimes; normalize.
+    if (Array.isArray(v)) return v;
+    const first = Object.values(v as unknown as Record<string, unknown>).find((x) => Array.isArray(x));
+    return (first as { title: string; prompt: string; starter: string; language: string }[]) ?? [];
+  });
 }
 
 export async function mockEvaluateCode(code: string) {
-  await sleep(900);
-  const lines = code.split("\n").length;
-  return {
-    passed: Math.min(4, Math.max(1, Math.floor(lines / 3))),
-    total: 5,
-    complexity: "O(n)",
-    feedback: [
-      "Solution runs in expected time complexity.",
-      "Consider edge cases: empty input, single element.",
-      "Naming is clear — good use of descriptive variables.",
-    ],
-  };
+  return json<{ passed: number; total: number; complexity: string; feedback: string[] }>(
+    SYS_CAREER,
+    `Evaluate this candidate code submission. Return JSON: passed (int, tests passed out of 5), total (=5), complexity (Big-O string), feedback[] (3 short bullets). Code:\n\n\`\`\`\n${code.slice(0, 4000)}\n\`\`\``,
+  );
 }
 
+// ---------- Resume Studio ----------
 export async function mockBuildResume(role: string, name: string) {
-  await sleep(900);
-  return {
-    role,
-    ats: 92,
-    summary: `${name} — ${role} with a track record of shipping measurable, high-impact work. ATS-optimized keywords tuned for ${role} postings.`,
-    sections: {
-      "Professional Summary": `Results-driven ${role} focused on scalable systems and cross-functional leadership.`,
-      "Core Skills": ["TypeScript", "React", "System Design", "Performance", "Mentorship"].join(" · "),
-      Experience:
-        "• Led migration reducing p95 latency by 42%\n• Owned design-system rollout across 12 product teams\n• Shipped realtime dashboards handling 40M events/day",
-      Education: "BSc Computer Science — TU Delft (2016 — 2020)",
-    },
-    tips: [
-      "Keywords tuned to " + role + " job descriptions",
-      "Uses standard section headings (ATS-safe)",
-      "One-page, no tables or columns",
-    ],
-  };
+  return json<{
+    role: string;
+    ats: number;
+    summary: string;
+    sections: Record<string, string>;
+    tips: string[];
+  }>(
+    SYS_CAREER,
+    `Draft an ATS-optimized resume for ${name} targeting a "${role}" role. Return JSON: role (echo), ats (0-100 predicted ATS score), summary (2-3 sentences), sections (object with keys "Professional Summary", "Core Skills", "Experience", "Education" — each a string, use \\n for newlines and • for bullets), tips[3-5].`,
+  );
 }
 
 export async function mockCoverLetter(role: string, company: string) {
-  await sleep(800);
-  return `Dear ${company} Hiring Team,\n\nI'm applying for the ${role} role at ${company}. My work at Vector Studio — where I led a Next.js 15 migration cutting p95 latency by 42% — aligns closely with your platform engineering charter. I've also owned a design-system rollout across 12 product teams, which mirrors ${company}'s cross-functional model.\n\nWhat draws me to ${company} is the depth of your engineering blog and the caliber of open problems in your UI platform. I'd love to discuss how I can contribute.\n\nBest,\nAlex Morgan`;
+  requireKey();
+  return complete(
+    [
+      { role: "system", content: "You write concise, high-signal cover letters. No fluff, 180-220 words, first person." },
+      { role: "user", content: `Write a cover letter for a ${role} role at ${company}. End with a plain sign-off "Best,\\n<applicant name>".` },
+    ],
+    { temperature: 0.5 },
+  );
 }
 
 export async function mockTranslateResume(target: string) {
-  await sleep(700);
-  const flags: Record<string, string> = {
-    Spanish: "es",
-    French: "fr",
-    German: "de",
-    Japanese: "ja",
-    Portuguese: "pt",
-    Hindi: "hi",
-  };
-  return {
-    language: target,
-    code: flags[target] ?? "xx",
-    preview: `[${target}] Resumen profesional / Résumé / Zusammenfassung — Senior Frontend Engineer con historial de entrega de sistemas escalables y liderazgo interfuncional.`,
-    note: "Translation preserves ATS keywords and section headings for the target locale.",
-  };
+  return json<{ language: string; code: string; preview: string; note: string }>(
+    SYS_CAREER,
+    `Produce a translated resume PREVIEW (first 2 sentences of a professional summary) in ${target}, preserving ATS keywords. Return JSON: language ("${target}"), code (2-letter ISO code), preview (translated text), note (short explanation of preserved keywords).`,
+  );
 }
