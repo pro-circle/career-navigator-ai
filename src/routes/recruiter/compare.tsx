@@ -24,14 +24,36 @@ const DIMS = [
 ] as const;
 
 function ComparePage() {
-  const [ids, setIds] = useState<string[]>([candidates[0].id, candidates[1].id, candidates[3].id]);
-  const selected = ids.map((id) => candidates.find((c) => c.id === id)!).filter(Boolean);
+  const initialIds = [candidates[0]?.id, candidates[1]?.id, candidates[3]?.id ?? candidates[2]?.id].filter(
+    (v): v is string => Boolean(v),
+  );
+  const [ids, setIds] = useState<string[]>(initialIds);
+  const selected = ids
+    .map((id) => candidates.find((c) => c.id === id))
+    .filter((c): c is (typeof candidates)[number] => Boolean(c));
 
   const setSlot = (i: number, v: string) => {
     const next = [...ids];
     next[i] = v;
     setIds(next);
   };
+
+  if (candidates.length === 0) {
+    return (
+      <div>
+        <PageHeader
+          eyebrow="Explainable AI"
+          title="Compare candidates"
+          subtitle="Pick up to 4 candidates. AI weighs each dimension and explains the recommendation."
+        />
+        <Panel>
+          <div className="text-sm text-muted-foreground">
+            No candidates yet. Add candidates from the Candidates page or load demo data to compare.
+          </div>
+        </Panel>
+      </div>
+    );
+  }
 
   return (
     <div>
