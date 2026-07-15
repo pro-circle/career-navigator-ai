@@ -25,50 +25,55 @@ export function AppShell({
 
   return (
     <div className="flex min-h-screen w-full bg-brand-bg text-foreground">
-      <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-brand-border bg-[#0d131a]">
-        <Link to="/" className="flex items-center gap-3 px-5 h-16 border-b border-brand-border">
-          <span className="grid place-items-center h-8 w-8 rounded-lg bg-brand-accent/15 text-brand-accent font-bold">
-            {brandBadge}
-          </span>
-          <div className="leading-tight">
-            <div className="text-sm font-semibold text-foreground">AIHire Pro</div>
-            <div className="mono-label !text-[9px]">{brandName}</div>
-          </div>
-        </Link>
-        <nav className="flex-1 py-4 px-3 space-y-1">
-          {nav.map((item) => {
-            const Icon = item.icon;
-            const active = pathname === item.to || (item.to !== "/" && pathname.startsWith(item.to + "/"));
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
-                  active
-                    ? "bg-brand-surface text-foreground border border-brand-border"
-                    : "text-muted-foreground hover:text-foreground hover:bg-brand-surface/60",
-                )}
-              >
-                <Icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="p-4 border-t border-brand-border">
-          <div className="mono-label mb-2">Session</div>
-          <div className="rounded-lg bg-brand-surface border border-brand-border p-3 text-xs">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="h-2 w-2 rounded-full bg-brand-success animate-pulse" />
-              <span className="font-medium text-foreground">Local demo</span>
+      {/* Retractable sidebar (Supabase-style hover-to-expand overlay) */}
+      <div className="hidden md:block w-[64px] shrink-0 relative">
+        <aside
+          className="group/sidebar fixed top-0 left-0 z-40 h-screen w-[64px] hover:w-60 focus-within:w-60 transition-[width] duration-200 ease-out border-r border-brand-border bg-[#0d131a] overflow-hidden flex flex-col shadow-none hover:shadow-2xl hover:shadow-black/40"
+        >
+          <Link to="/" className="flex items-center gap-3 px-4 h-16 border-b border-brand-border shrink-0">
+            <span className="grid place-items-center h-8 w-8 shrink-0 rounded-lg bg-brand-accent/15 text-brand-accent font-bold">
+              {brandBadge}
+            </span>
+            <div className="leading-tight opacity-0 group-hover/sidebar:opacity-100 group-focus-within/sidebar:opacity-100 transition-opacity duration-150 whitespace-nowrap">
+              <div className="text-sm font-semibold text-foreground">AIHire Pro</div>
+              <div className="mono-label !text-[9px]">{brandName}</div>
             </div>
-            <div className="text-muted-foreground text-[11px]">
-              Agentic AI · server-side
+          </Link>
+          <nav className="flex-1 py-3 px-2 space-y-1 overflow-y-auto chat-scroll">
+            {nav.map((item) => {
+              const Icon = item.icon;
+              const active = pathname === item.to || (item.to !== "/" && pathname.startsWith(item.to + "/"));
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  title={item.label}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                    active
+                      ? "bg-brand-surface text-foreground border border-brand-border"
+                      : "text-muted-foreground hover:text-foreground hover:bg-brand-surface/60",
+                  )}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span className="opacity-0 group-hover/sidebar:opacity-100 group-focus-within/sidebar:opacity-100 transition-opacity duration-150 whitespace-nowrap">
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="p-3 border-t border-brand-border shrink-0">
+            <div className="rounded-lg bg-brand-surface border border-brand-border p-2.5 text-xs flex items-center gap-2">
+              <span className="h-2 w-2 shrink-0 rounded-full bg-brand-success animate-pulse" />
+              <div className="opacity-0 group-hover/sidebar:opacity-100 group-focus-within/sidebar:opacity-100 transition-opacity duration-150 whitespace-nowrap">
+                <div className="font-medium text-foreground">Local demo</div>
+                <div className="text-muted-foreground text-[10px]">Agentic AI · server-side</div>
+              </div>
             </div>
           </div>
-        </div>
-      </aside>
+        </aside>
+      </div>
 
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="h-16 shrink-0 border-b border-brand-border bg-brand-bg/80 backdrop-blur flex items-center justify-between px-6 md:px-8">

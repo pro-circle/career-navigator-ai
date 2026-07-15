@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { MatchBar } from "@/components/AtsRadial";
 import { mockAnalyzeExternalJob } from "@/lib/mock-ai";
+import { RequireResume } from "@/components/RequireResume";
 
 export const Route = createFileRoute("/candidate/external")({
   head: () => ({
@@ -50,6 +51,7 @@ function ExternalPage() {
         title="Analyze any job posting"
         subtitle="Paste a URL from LinkedIn, Indeed, Greenhouse, Lever, or any company career page."
       />
+      <RequireResume feature="External Job Analyzer" description="We compare the posting against the skills and experience in your resume to compute match, gaps, and prep.">
 
       <Panel>
         <div className="flex gap-2">
@@ -132,6 +134,7 @@ function ExternalPage() {
           </Panel>
         </div>
       )}
+      </RequireResume>
     </div>
   );
 }

@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { MatchBar } from "@/components/AtsRadial";
 import { interviewScripts } from "@/lib/mock-data";
 import { mockCodingQuestions, mockEvaluateCode, mockEvaluateInterview } from "@/lib/mock-ai";
+import { RequireResume } from "@/components/RequireResume";
 
 export const Route = createFileRoute("/candidate/interview")({
   head: () => ({
@@ -135,6 +136,7 @@ function InterviewPage() {
         title="Agentic Mock Interview"
         subtitle="Adaptive interviewer + coding IDE. Difficulty and questions tuned to the target company's interview history."
       />
+      <RequireResume feature="Mock Interview" description="Interview questions and coding rounds are tuned to the skills and level in your resume.">
 
       {phase === "setup" && (
         <Panel eyebrow="Configure" title="Session setup">
@@ -306,6 +308,7 @@ function InterviewPage() {
           </Panel>
         </div>
       )}
+      </RequireResume>
     </div>
   );
 }

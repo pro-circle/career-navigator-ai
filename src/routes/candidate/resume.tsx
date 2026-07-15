@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { candidateProfile } from "@/lib/mock-data";
 import { mockBuildResume, mockCoverLetter, mockParseResume, mockTranslateResume } from "@/lib/mock-ai";
+import { saveParsedResume } from "@/lib/resume-store";
 
 export const Route = createFileRoute("/candidate/resume")({
   head: () => ({
@@ -48,6 +49,7 @@ function ResumePage() {
     try {
       const res = await mockParseResume(f.name);
       setParsed(res);
+      saveParsedResume(res as unknown as Record<string, unknown>);
       toast.success("Resume parsed", { description: `${res.skills.length} skills · ${res.hyperlinks.length} links detected` });
     } catch (e) {
       toast.error("Parse failed", { description: String((e as Error).message ?? e) });

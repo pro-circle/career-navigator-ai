@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { MatchBar } from "@/components/AtsRadial";
 import { jobs } from "@/lib/mock-data";
+import { RequireResume } from "@/components/RequireResume";
 
 export const Route = createFileRoute("/candidate/jobs")({
   head: () => ({
@@ -34,6 +35,7 @@ function JobsPage() {
         subtitle="AI ranks open roles against your resume, portfolio, and target career direction."
       />
 
+      <RequireResume feature="Job Match" description="We match roles against the skills, experience, and keywords in your resume.">
       <div className="grid md:grid-cols-2 gap-4">
         {sorted.map((j) => {
           const match = matches[j.id] ?? 50;
@@ -80,6 +82,7 @@ function JobsPage() {
           );
         })}
       </div>
+      </RequireResume>
 
       <Dialog open={!!openId} onOpenChange={(o) => !o && setOpenId(null)}>
         <DialogContent className="sm:max-w-lg bg-brand-surface border-brand-border">
